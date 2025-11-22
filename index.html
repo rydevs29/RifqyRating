@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>RifqyRating</title>
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght=400;600;700;800&display=swap" rel="stylesheet">
   <style>
     :root{--p:#6c5ce7;--y:#ffd43b;--bg:#0f0c29;--g:rgba(255,255,255,0.08);--text:#fff;--radius:24px}
     *{margin:0;padding:0;box-sizing:border-box}
@@ -14,7 +14,7 @@
     .s{text-align:center;opacity:0.9;font-weight:600;margin-bottom:24px}
     .in{width:100%;padding:18px 20px;border:none;border-radius:50px;background:var(--g);color:var(--text);font-size:1.1rem;margin-bottom:20px;backdrop-filter:blur(12px)}
     .grid{display:grid;gap:16px}
-    .card{background:var(--g);backdrop-filter:blur(20px);border:1px solid rgba(255,255,255,0.12);border-radius:var(--radius);padding:24px;cursor:pointer;transition:.3s;box-shadow:0 12px 32px rgba(0,0,0,0.4)}
+    .card{background:var(--g);backdrop-filter:blur(20px);border:1px solid rgba(255,255,255,0.12);border-radius:var(--radius);padding:24px;transition:.3s;box-shadow:0 12px 32px rgba(0,0,0,0.4)}
     .card:hover{transform:translateY(-6px)}
     .name{font-size:1.4rem;font-weight:800;margin-bottom:8px}
     .desc{opacity:0.85;font-size:0.95rem;line-height:1.5;margin-bottom:12px}
@@ -56,40 +56,53 @@
     {name:"RifqyPaste", desc:"Bagikan teks, kode, atau catatan dengan cepat.", link:"https://paste.rifqydev.my.id"}
   ];
 
-  function getReviewText(c) {
-    if (c === 0) return "Belum ada ulasan";
-    return c === 1 ? "1 ulasan" : `${c} ulasan`;
+  function formatReviewCount(count) {
+    if (count === 0) return "Belum ada ulasan";
+    if (count === 1) return "1 ulasan";
+    return `${count} ulasan`;
   }
 
   const container = document.getElementById('projects');
   projects.forEach(p => {
     const card = document.createElement('div');
     card.className = 'card';
+
     card.innerHTML = `
       <div class="name">${p.name}</div>
       <div class="desc">${p.desc}</div>
-      <a href="${p.link}" class="link" target="_blank">Buka Proyek</a>
+      <a href="${p.link}" target="_blank" class="link">Buka Proyek</a>
       <div class="rate">Memuat rating...</div>
     `;
-    card.onclick = e => {
+
+    // Klik card → buka halaman rating
+    card.onclick = (e) => {
       if (e.target.closest('a')) return;
       window.location.href = `rate.html?n=${encodeURIComponent(p.name)}`;
     };
+
     container.appendChild(card);
 
-    const r = ref(db, 'ratings/' + p.name);
-    onValue(r, snap => {
-      const d = snap.val() || {sum:0, count:0};
-      const avg = d.count ? (d.sum / d.count).toFixed(1) : '0.0';
-      const count = d.count || 0;
-      card.querySelector('.rate').textContent = `\( {avg}/5 ( \){getReviewText(count)})`;
+    // Update rating real-time dari Firebase
+    const ratingRef = ref(db, 'ratings/' + p.name);
+    onValue(ratingRef, (snap) => {
+      const data = snap.val();
+      let text = "0.0 / 5 (Belum ada ulasan)";
+
+      if (data && data.count > 0) {
+        const avg = (data.sum / data.count).toFixed(1);
+        text = `\( {avg} / 5 ( \){formatReviewCount(data.count)})`;
+      }
+
+      card.querySelector('.rate').textContent = text;
     });
   });
 
-  document.getElementById('search').addEventListener('input', e => {
-    const q = e.target.value.toLowerCase();
+  // Search
+  document.getElementById('search').addEventListener('input', (e) => {
+    const query = e.target.value.toLowerCase();
     document.querySelectorAll('.card').forEach(card => {
-      card.style.display = card.querySelector('.name').textContent.toLowerCase().includes(q) ? 'block' : 'none';
+      const name = card.querySelector('.name').textContent.toLowerCase();
+      card.style.display = name.includes(query) ? 'block' : 'none';
     });
   });
 </script>
