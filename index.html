@@ -8,20 +8,20 @@
   <style>
     :root{--p:#6c5ce7;--y:#ffd43b;--bg:#0f0c29;--g:rgba(255,255,255,0.08);--text:#fff;--radius:24px}
     *{margin:0;padding:0;box-sizing:border-box}
-    body{font-family:'Poppins',sans-serif;background:linear-gradient(135deg,var(--bg),#302b63,#24243e);color:var(--text);min-height:100dvh;padding:20px 16px 100px;display:flex;justify-content:center}
-    .c{max-width:500px;margin:0 auto;width:100%}
+    body{font-family:'Poppins',sans-serif;background:linear-gradient(135deg,var(--bg),#302b63,#24243e);color:var(--text);min-height:100dvh;padding:20px 16px;display:flex;flex-direction:column}
+    .c{max-width:500px;margin:0 auto;width:100%;flex:1;display:flex;flex-direction:column}
     h1{font-size:2.8rem;font-weight:800;background:linear-gradient(to right,var(--p),#8f94fb);-webkit-background-clip:text;-webkit-text-fill-color:transparent;text-align:center;margin-bottom:8px}
     .s{text-align:center;opacity:0.9;font-weight:600;margin-bottom:24px}
     .in{width:100%;padding:18px 20px;border:none;border-radius:50px;background:var(--g);color:var(--text);font-size:1.1rem;margin-bottom:20px;backdrop-filter:blur(12px)}
-    .grid{display:grid;gap:16px}
+    .grid{display:grid;gap:16px;margin-top:10px}
     .card{background:var(--g);backdrop-filter:blur(20px);border:1px solid rgba(255,255,255,0.12);border-radius:var(--radius);padding:24px;cursor:pointer;transition:.3s;box-shadow:0 12px 32px rgba(0,0,0,0.4)}
-    .card:hover{transform:translateY(-8px)}
+    .card:hover{transform:translateY(-6px)}
     .name{font-size:1.4rem;font-weight:800;margin-bottom:8px}
     .desc{opacity:0.85;font-size:0.95rem;line-height:1.5;margin-bottom:12px}
-    .link{color:var(--p);font-weight:700;text-decoration:none;display:inline-block;margin-bottom:12px}
+    .link{color:var(--p);font-weight:700;text-decoration:none;display:block;margin-bottom:12px}
     .rate{color:var(--y);font-weight:800;font-size:1.15rem}
     .stars{display:flex;justify-content:center;gap:12px;margin:30px 0}
-    .star{font-size:2.6rem;cursor:pointer;user-select:none;transition:.2s;color:#555}
+    .star{font-size:2.6rem;cursor:pointer;user-select:none;color:#555;transition:.2s}
     .star.active{color:var(--y)}
     .ta{width:100%;min-height:120px;padding:18px;border:none;border-radius:20px;background:var(--g);color:var(--text);font-family:inherit;font-size:1rem;margin:16px 0;resize:none;backdrop-filter:blur(10px)}
     .btn{width:100%;padding:18px;border:none;border-radius:50px;font-weight:800;font-size:1.1rem;cursor:pointer;margin:10px 0;transition:.2s}
@@ -44,7 +44,7 @@
 </div>
 
 <div class="c hidden" id="rating-page">
-  <div class="card">
+  <div class="card" style="flex:1;display:flex;flex-direction:column">
     <h2 id="title" style="font-size:2rem;margin-bottom:12px"></h2>
     <p id="desc" class="desc"></p>
     <a id="link" href="#" target="_blank" class="link">Buka Proyek</a>
@@ -55,7 +55,7 @@
     <button class="btn btn-p" id="submit-btn">Kirim Rating</button>
 
     <h3 style="margin:40px 0 16px;font-size:1.3rem" id="recent-title">Review Terbaru</h3>
-    <div class="rev" id="reviews">Memuat...</div>
+    <div class="rev" id="reviews" style="flex:1;overflow-y:auto"></div>
 
     <button class="btn btn-b" id="back-btn">Kembali ke Daftar</button>
   </div>
@@ -92,6 +92,7 @@
     thanks: isID ? "Rating berhasil dikirim! Terima kasih ❤️" : "Rating submitted! Thank you ❤️"
   };
 
+  // Update static text
   document.getElementById('subtitle').textContent = t.subtitle;
   document.getElementById('search').placeholder = t.search;
   document.getElementById('submit-btn').textContent = t.submit;
@@ -100,48 +101,54 @@
   document.getElementById('review').placeholder = t.placeholder;
 
   const projects = [
-    {name:"ArchiveMods",desc:isID?"Portal arsip modifikasi, eksperimen, dan tools digital dari RifqyDev.":"Archive portal for mods, experiments, and digital tools by RifqyDev.",link:"https://rifqydev.my.id"},
-    {name:"RifqyMaps",desc:isID?"Jelajahi lokasi, cari tempat menarik, dan integrasi peta.":"Explore locations, find interesting places, and map integration.",link:"https://maps.rifqydev.my.id"},
-    {name:"RifqyTask",desc:isID?"Kelola dan pantau tugasmu dengan tampilan modern.":"Manage and track your tasks with a modern interface.",link:"https://task.rifqydev.my.id"},
-    {name:"RifqyNotes",desc:isID?"Catat ide, belajar, atau to-do dengan markdown.":"Take notes with markdown preview and categories.",link:"https://notes.rifqydev.my.id"},
-    {name:"RifqyStudy",desc:isID?"Belajar interaktif dengan quiz dan flashcard.":"Interactive learning with quizzes and flashcards.",link:"https://study.rifqydev.my.id"},
-    {name:"RifqyConverter",desc:isID?"Konversi satuan, mata uang, dan data dengan cepat.":"Convert units, currency, and data quickly.",link:"https://converter.rifqydev.my.id"},
-    {name:"RifqyCompress",desc:isID?"Kompres gambar dan file langsung dari browser.":"Compress images and files in-browser.",link:"https://compress.rifqydev.my.id"},
-    {name:"RifqyCalory",desc:isID?"Hitung kalori makanan dan pantau asupan harianmu.":"Track calories and monitor daily intake.",link:"https://calory.rifqydev.my.id"},
-    {name:"RifqyWeather",desc:isID?"Lihat cuaca harian dan prakiraan lokal.":"Check daily weather and local forecasts.",link:"https://weather.rifqydev.my.id"},
-    {name:"RifqyTranslate",desc:isID?"Terjemahkan teks antar bahasa dengan cepat.":"Translate text between languages instantly.",link:"https://translate.rifqydev.my.id"},
-    {name:"RifqyQR",desc:isID?"Buat dan scan QR code secara instan.":"Create and scan QR codes instantly.",link:"https://qr.rifqydev.my.id"},
-    {name:"RifqyBudget",desc:isID?"Kelola keuangan pribadi dan anggaran.":"Manage personal finances and budget.",link:"https://budget.rifqydev.my.id"},
-    {name:"RifqyPaste",desc:isID?"Bagikan teks, kode, atau catatan dengan cepat.":"Share text, code, or notes quickly.",link:"https://paste.rifqydev.my.id"}
+    {name:"ArchiveMods", desc:isID?"Portal arsip modifikasi, eksperimen, dan tools digital dari RifqyDev.":"Archive portal for mods, experiments, and digital tools by RifqyDev.", link:"https://rifqydev.my.id"},
+    {name:"RifqyMaps", desc:isID?"Jelajahi lokasi, cari tempat menarik, dan integrasi peta.":"Explore locations, find interesting places, and map integration.", link:"https://maps.rifqydev.my.id"},
+    {name:"RifqyTask", desc:isID?"Kelola dan pantau tugasmu dengan tampilan modern.":"Manage and track your tasks with a modern interface.", link:"https://task.rifqydev.my.id"},
+    {name:"RifqyNotes", desc:isID?"Catat ide, belajar, atau to-do dengan markdown.":"Take notes with markdown preview and categories.", link:"https://notes.rifqydev.my.id"},
+    {name:"RifqyStudy", desc:isID?"Belajar interaktif dengan quiz dan flashcard.":"Interactive learning with quizzes and flashcards.", link:"https://study.rifqydev.my.id"},
+    {name:"RifqyConverter", desc:isID?"Konversi satuan, mata uang, dan data dengan cepat.":"Convert units, currency, and data quickly.", link:"https://converter.rifqydev.my.id"},
+    {name:"RifqyCompress", desc:isID?"Kompres gambar dan file langsung dari browser.":"Compress images and files in-browser.", link:"https://compress.rifqydev.my.id"},
+    {name:"RifqyCalory", desc:isID?"Hitung kalori makanan dan pantau asupan harianmu.":"Track calories and monitor daily intake.", link:"https://calory.rifqydev.my.id"},
+    {name:"RifqyWeather", desc:isID?"Lihat cuaca harian dan prakiraan lokal.":"Check daily weather and local forecasts.", link:"https://weather.rifqydev.my.id"},
+    {name:"RifqyTranslate", desc:isID?"Terjemahkan teks antar bahasa dengan cepat.":"Translate text between languages instantly.", link:"https://translate.rifqydev.my.id"},
+    {name:"RifqyQR", desc:isID?"Buat dan scan QR code secara instan.":"Create and scan QR codes instantly.", link:"https://qr.rifqydev.my.id"},
+    {name:"RifqyBudget", desc:isID?"Kelola keuangan pribadi dan anggaran.":"Manage personal finances and budget.", link:"https://budget.rifqydev.my.id"},
+    {name:"RifqyPaste", desc:isID?"Bagikan teks, kode, atau catatan dengan cepat.":"Share text, code, or notes quickly.", link:"https://paste.rifqydev.my.id"}
   ];
 
-  let selected = null;
+  function createProjectCard(p) {
+    const card = document.createElement('div');
+    card.className = 'card';
 
-  function renderProjects() {
-    const container = document.getElementById('projects');
-    container.innerHTML = '';
-    projects.forEach(p => {
-      const card = document.createElement('div');
-      card.className = 'card';
-      const projectRef = ref(db, 'ratings/' + p.name);
-      onValue(projectRef, (snap) => {
-        const data = snap.val() || { sum: 0, count: 0 };
-        const avg = data.count > 0 ? (data.sum / data.count).toFixed(1) : '0.0';
-        const count = data.count || 0;
-        const suffix = count === 1 ? (isID ? 'ulasan' : 'review') : t.avgSuffix;
+    const projectRef = ref(db, 'ratings/' + p.name);
+    onValue(projectRef, (snap) => {
+      const data = snap.val() || { sum: 0, count: 0 };
+      const avg = data.count ? (data.sum / data.count).toFixed(1) : '0.0';
+      const count = data.count || 0;
+      const suffix = count === 1 ? (isID ? 'ulasan' : 'review') : t.avgSuffix;
 
-        card.innerHTML = `
-          <div class="name">${p.name}</div>
-          <div class="desc">${p.desc}</div>
-          <a href="\( {p.link}" class="link" target="_blank"> \){t.open}</a>
-          <div class="rate">\( {avg}/5 ( \){count} ${suffix})</div>
-        `;
-        card.onclick = (e) => { if (!e.target.closest('a')) openProject(p); };
-      });
-      container.appendChild(card);
+      card.innerHTML = `
+        <div class="name">${p.name}</div>
+        <div class="desc">${p.desc}</div>
+        <a href="\( {p.link}" class="link" target="_blank"> \){t.open}</a>
+        <div class="rate">\( {avg}/5 ( \){count} ${suffix})</div>
+      `;
     });
+
+    card.addEventListener('click', (e) => {
+      if (!e.target.closest('a')) openProject(p);
+    });
+
+    return card;
   }
 
+  function loadProjects() {
+    const container = document.getElementById('projects');
+    container.innerHTML = '';
+    projects.forEach(p => container.appendChild(createProjectCard(p)));
+  }
+
+  let selected = null;
   function openProject(p) {
     selected = p;
     document.getElementById('title').textContent = p.name;
@@ -165,7 +172,7 @@
     const r = ref(db, 'ratings/' + selected.name);
     onValue(r, (snap) => {
       const d = snap.val() || { sum: 0, count: 0 };
-      const avg = d.count > 0 ? (d.sum / d.count).toFixed(1) : '0.0';
+      const avg = d.count ? (d.sum / d.count).toFixed(1) : '0.0';
       const count = d.count || 0;
       const suffix = count === 1 ? (isID ? 'ulasan' : 'review') : t.avgSuffix;
       document.getElementById('avg').textContent = `\( {avg}/5 ( \){count} ${suffix})`;
@@ -174,54 +181,59 @@
 
   function loadReviews() {
     const r = ref(db, 'ratings/' + selected.name + '/reviews');
+    const container = document.getElementById('reviews');
+    container.innerHTML = '<p style="text-align:center;opacity:0.6">Memuat...</p>';
+
     onValue(r, (snap) => {
-      const container = document.getElementById('reviews');
       container.innerHTML = '';
       if (!snap.val()) {
         container.innerHTML = `<p style="text-align:center;opacity:0.7">${t.noReview}</p>`;
         return;
       }
-      Object.values(snap.val()).reverse().slice(0, 10).forEach(review => {
-        const div = document.createElement('div');
-        div.className = 'ri';
-        div.innerHTML = `
-          <div class="rs">\( {'★'.repeat(review.stars)} \){'☆'.repeat(5 - review.stars)}</div>
-          <p>${review.text}</p>
-          <small>${new Date(review.date).toLocaleDateString(isID ? 'id-ID' : 'en-US')}</small>
-        `;
-        container.appendChild(div);
-      });
+      Object.values(snap.val())
+        .sort((a,b) => b.date - a.date)
+        .slice(0, 10)
+        .forEach(review => {
+          const div = document.createElement('div');
+          div.className = 'ri';
+          div.innerHTML = `
+            <div class="rs">\( {'★'.repeat(review.stars)} \){'☆'.repeat(5-review.stars)}</div>
+            <p>${review.text.replace(/</g, '&lt;')}</p>
+            <small>${new Date(review.date).toLocaleDateString(isID ? 'id-ID' : 'en-US')}</small>
+          `;
+          container.appendChild(div);
+        });
     });
   }
 
   function setupStars() {
-    const stars = document.getElementById('stars');
-    stars.innerHTML = '';
+    const container = document.getElementById('stars');
+    container.innerHTML = '';
     for (let i = 1; i <= 5; i++) {
-      const s = document.createElement('span');
-      s.className = 'star';
-      s.textContent = '★';
-      s.onclick = () => {
-        document.querySelectorAll('.star').forEach((el, idx) => {
-          el.classList.toggle('active', idx < i);
+      const star = document.createElement('span');
+      star.className = 'star';
+      star.textContent = '★';
+      star.onclick = () => {
+        container.querySelectorAll('.star').forEach((s, idx) => {
+          s.classList.toggle('active', idx < i);
         });
       };
-      stars.appendChild(s);
+      container.appendChild(star);
     }
   }
 
   document.getElementById('submit-btn').onclick = () => {
-    const active = document.querySelectorAll('.star.active').length;
+    const stars = document.querySelectorAll('#stars .star.active').length;
     const text = document.getElementById('review').value.trim();
-    if (active === 0) return alert(isID ? 'Pilih bintang dulu!' : 'Select stars first!');
-    if (text.length < 10) return alert(isID ? 'Review minimal 10 karakter!' : 'Review at least 10 chars!');
+    if (stars === 0) return alert(isID ? 'Pilih bintang dulu!' : 'Select stars first!');
+    if (text.length < 10) return alert(isID ? 'Review minimal 10 karakter!' : 'Review at least 10 characters!');
 
     const r = ref(db, 'ratings/' + selected.name);
     runTransaction(r, (current) => {
       current = current || { sum: 0, count: 0, reviews: {} };
-      current.sum += active;
+      current.sum += stars;
       current.count += 1;
-      current.reviews[Date.now()] = { stars: active, text, date: Date.now() };
+      current.reviews[Date.now()] = { stars, text, date: Date.now() };
       return current;
     }).then(() => {
       alert(t.thanks);
@@ -233,11 +245,12 @@
   document.getElementById('search').addEventListener('input', (e) => {
     const q = e.target.value.toLowerCase();
     document.querySelectorAll('.card').forEach(card => {
-      card.style.display = card.querySelector('.name').textContent.toLowerCase().includes(q) ? 'block' : 'none';
+      const name = card.querySelector('.name')?.textContent.toLowerCase() || '';
+      card.style.display = name.includes(q) ? 'block' : 'none';
     });
   });
 
-  renderProjects();
+  loadProjects();
 </script>
 </body>
 </html>
