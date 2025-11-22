@@ -38,7 +38,7 @@
 
 <div class="c" id="list-page">
   <h1>RifqyRating</h1>
-  <p class="s" id="subtitle">Beri rating & review untuk semua proyek RifqyDev</p>
+  <p class="s">Beri rating & review untuk semua proyek RifqyDev</p>
   <input type="text" class="in" id="search" placeholder="Cari proyek...">
   <div class="grid" id="projects"></div>
 </div>
@@ -54,7 +54,7 @@
     <textarea class="ta" id="review" placeholder="Tulis review kamu disini..."></textarea>
     <button class="btn btn-p" id="submit-btn">Kirim Rating</button>
 
-    <h3 style="margin:40px 0 16px;font-size:1.3rem" id="recent-title">Review Terbaru</h3>
+    <h3 style="margin:40px 0 16px;font-size:1.3rem">Review Terbaru</h3>
     <div class="rev" id="reviews"></div>
 
     <button class="btn btn-b" id="back-btn">Kembali ke Daftar</button>
@@ -78,49 +78,25 @@
   const app = initializeApp(firebaseConfig);
   const db = getDatabase(app);
 
-  const isID = navigator.language.startsWith('id');
-  const t = {
-    subtitle: isID ? "Beri rating & review untuk semua proyek RifqyDev" : "Rate & review all RifqyDev projects",
-    search: isID ? "Cari proyek..." : "Search projects...",
-    open: isID ? "Buka Proyek →" : "Open Project →",
-    placeholder: isID ? "Tulis review kamu disini..." : "Write your review here...",
-    submit: isID ? "Kirim Rating" : "Submit Rating",
-    recent: isID ? "Review Terbaru" : "Latest Reviews",
-    back: isID ? "Kembali ke Daftar" : "Back to List",
-    noReview: isID ? "Belum ada review" : "No reviews yet",
-    thanks: isID ? "Terima kasih atas ratingnya!" : "Thank you for your rating!",
-    reviewSingular: isID ? "ulasan" : "review",
-    reviewPlural: isID ? "ulasan" : "reviews"
-  };
-
-  // Update teks statis
-  document.getElementById('subtitle').textContent = t.subtitle;
-  document.getElementById('search').placeholder = t.search;
-  document.getElementById('submit-btn').textContent = t.submit;
-  document.getElementById('recent-title').textContent = t.recent;
-  document.getElementById('back-btn').textContent = t.back;
-  document.getElementById('review').placeholder = t.placeholder;
-
   const projects = [
-    {name:"ArchiveMods", desc:isID?"Portal arsip modifikasi, eksperimen, dan tools digital dari RifqyDev.":"Archive portal for mods, experiments, and digital tools by RifqyDev.", link:"https://rifqydev.my.id"},
-    {name:"RifqyMaps", desc:isID?"Jelajahi lokasi, cari tempat menarik, dan integrasi peta.":"Explore locations, find interesting places, and map integration.", link:"https://maps.rifqydev.my.id"},
-    {name:"RifqyTask", desc:isID?"Kelola dan pantau tugasmu dengan tampilan modern.":"Manage and track your tasks with a modern interface.", link:"https://task.rifqydev.my.id"},
-    {name:"RifqyNotes", desc:isID?"Catat ide, belajar, atau to-do dengan markdown.":"Take notes with markdown preview and categories.", link:"https://notes.rifqydev.my.id"},
-    {name:"RifqyStudy", desc:isID?"Belajar interaktif dengan quiz dan flashcard.":"Interactive learning with quizzes and flashcards.", link:"https://study.rifqydev.my.id"},
-    {name:"RifqyConverter", desc:isID?"Konversi satuan, mata uang, dan data dengan cepat.":"Convert units, currency, and data quickly.", link:"https://converter.rifqydev.my.id"},
-    {name:"RifqyCompress", desc:isID?"Kompres gambar dan file langsung dari browser.":"Compress images and files in-browser.", link:"https://compress.rifqydev.my.id"},
-    {name:"RifqyCalory", desc:isID?"Hitung kalori makanan dan pantau asupan harianmu.":"Track calories and monitor daily intake.", link:"https://calory.rifqydev.my.id"},
-    {name:"RifqyWeather", desc:isID?"Lihat cuaca harian dan prakiraan lokal.":"Check daily weather and local forecasts.", link:"https://weather.rifqydev.my.id"},
-    {name:"RifqyTranslate", desc:isID?"Terjemahkan teks antar bahasa dengan cepat.":"Translate text between languages instantly.", link:"https://translate.rifqydev.my.id"},
-    {name:"RifqyQR", desc:isID?"Buat dan scan QR code secara instan.":"Create and scan QR codes instantly.", link:"https://qr.rifqydev.my.id"},
-    {name:"RifqyBudget", desc:isID?"Kelola keuangan pribadi dan anggaran.":"Manage personal finances and budget.", link:"https://budget.rifqydev.my.id"},
-    {name:"RifqyPaste", desc:isID?"Bagikan teks, kode, atau catatan dengan cepat.":"Share text, code, or notes quickly.", link:"https://paste.rifqydev.my.id"}
+    {name:"ArchiveMods", desc:"Portal arsip modifikasi, eksperimen, dan tools digital dari RifqyDev.", link:"https://rifqydev.my.id"},
+    {name:"RifqyMaps", desc:"Jelajahi lokasi, cari tempat menarik, dan integrasi peta.", link:"https://maps.rifqydev.my.id"},
+    {name:"RifqyTask", desc:"Kelola dan pantau tugasmu dengan tampilan modern.", link:"https://task.rifqydev.my.id"},
+    {name:"RifqyNotes", desc:"Catat ide, belajar, atau to-do dengan markdown.", link:"https://notes.rifqydev.my.id"},
+    {name:"RifqyStudy", desc:"Belajar interaktif dengan quiz dan flashcard.", link:"https://study.rifqydev.my.id"},
+    {name:"RifqyConverter", desc:"Konversi satuan, mata uang, dan data dengan cepat.", link:"https://converter.rifqydev.my.id"},
+    {name:"RifqyCompress", desc:"Kompres gambar dan file langsung dari browser.", link:"https://compress.rifqydev.my.id"},
+    {name:"RifqyCalory", desc:"Hitung kalori makanan dan pantau asupan harianmu.", link:"https://calory.rifqydev.my.id"},
+    {name:"RifqyWeather", desc:"Lihat cuaca harian dan prakiraan lokal.", link:"https://weather.rifqydev.my.id"},
+    {name:"RifqyTranslate", desc:"Terjemahkan teks antar bahasa dengan cepat.", link:"https://translate.rifqydev.my.id"},
+    {name:"RifqyQR", desc:"Buat dan scan QR code secara instan.", link:"https://qr.rifqydev.my.id"},
+    {name:"RifqyBudget", desc:"Kelola keuangan pribadi dan anggaran.", link:"https://budget.rifqydev.my.id"},
+    {name:"RifqyPaste", desc:"Bagikan teks, kode, atau catatan dengan cepat.", link:"https://paste.rifqydev.my.id"}
   ];
 
-  function getReviewText(count) {
-    if (count === 0) return isID ? "Belum ada ulasan" : "No reviews yet";
-    if (count === 1) return isID ? "1 ulasan" : "1 review";
-    return `\( {count} \){isID ? "ulasan" : "reviews"}`;
+  function getReviewText(c) {
+    if (c === 0) return "Belum ada ulasan";
+    return c === 1 ? "1 ulasan" : `${c} ulasan`;
   }
 
   function loadProjects() {
@@ -132,17 +108,17 @@
       card.innerHTML = `
         <div class="name">${p.name}</div>
         <div class="desc">${p.desc}</div>
-        <a href="\( {p.link}" class="link" target="_blank"> \){t.open}</a>
-        <div class="rate" data-name="\( {p.name}">0.0/5 ( \){getReviewText(0)})</div>
+        <a href="${p.link}" class="link" target="_blank">Buka Proyek →</a>
+        <div class="rate">0.0/5 (${getReviewText(0)})</div>
       `;
-      card.onclick = (e) => { if (!e.target.closest('a')) openProject(p); };
+      card.onclick = e => { if (!e.target.closest('a')) openProject(p); };
       container.appendChild(card);
 
-      const rateRef = ref(db, 'ratings/' + p.name);
-      onValue(rateRef, (snap) => {
-        const data = snap.val() || { sum: 0, count: 0 };
-        const avg = data.count ? (data.sum / data.count).toFixed(1) : '0.0';
-        const count = data.count || 0;
+      const r = ref(db, 'ratings/' + p.name);
+      onValue(r, snap => {
+        const d = snap.val() || {sum:0, count:0};
+        const avg = d.count ? (d.sum / d.count).toFixed(1) : '0.0';
+        const count = d.count || 0;
         card.querySelector('.rate').textContent = `\( {avg}/5 ( \){getReviewText(count)})`;
       });
     });
@@ -154,24 +130,16 @@
     document.getElementById('title').textContent = p.name;
     document.getElementById('desc').textContent = p.desc;
     document.getElementById('link').href = p.link;
-    document.getElementById('link').textContent = t.open;
+    document.getElementById('link').textContent = "Buka Proyek →";
     document.getElementById('list-page').classList.add('hidden');
     document.getElementById('rating-page').classList.remove('hidden');
-    loadSummary();
-    loadReviews();
-    setupStars();
+    loadSummary(); loadReviews(); setupStars();
   }
-
-  document.getElementById('back-btn').onclick = () => {
-    document.getElementById('rating-page').classList.add('hidden');
-    document.getElementById('list-page').classList.remove('hidden');
-    document.getElementById('search').value = '';
-  };
 
   function loadSummary() {
     const r = ref(db, 'ratings/' + selected.name);
-    onValue(r, (snap) => {
-      const d = snap.val() || { sum: 0, count: 0 };
+    onValue(r, snap => {
+      const d = snap.val() || {sum:0, count:0};
       const avg = d.count ? (d.sum / d.count).toFixed(1) : '0.0';
       const count = d.count || 0;
       document.getElementById('avg').textContent = `\( {avg}/5 ( \){getReviewText(count)})`;
@@ -182,68 +150,58 @@
     const container = document.getElementById('reviews');
     container.innerHTML = '<p style="text-align:center;opacity:0.6">Memuat...</p>';
     const r = ref(db, 'ratings/' + selected.name + '/reviews');
-    onValue(r, (snap) => {
+    onValue(r, snap => {
       container.innerHTML = '';
-      if (!snap.val()) {
-        container.innerHTML = `<p style="text-align:center;opacity:0.7">${t.noReview}</p>`;
-        return;
-      }
+      if (!snap.val()) { container.innerHTML = '<p style="text-align:center;opacity:0.7">Belum ada review</p>'; return; }
       Object.values(snap.val())
-        .sort((a, b) => b.date - a.date)
-        .slice(0, 10)
-        .forEach(review => {
-          const stars = '★★★★★'.substring(0, review.stars) + '☆☆☆☆☆'.substring(0, 5 - review.stars);
-          const div = document.createElement('div');
-          div.className = 'ri';
-          div.innerHTML = `
-            <div class="rs">${stars}</div>
-            <p>${review.text.replace(/</g, '&lt;')}</p>
-            <small>${new Date(review.date).toLocaleDateString(isID ? 'id-ID' : 'en-US')}</small>
-          `;
+        .sort((a,b) => b.date - a.date)
+        .slice(0,10)
+        .forEach(rev => {
+          const stars = '★★★★★'.substring(0,rev.stars) + '☆☆☆☆☆'.substring(0,5-rev.stars);
+          const div = document.createElement('div'); div.className = 'ri';
+          div.innerHTML = `<div class="rs">\( {stars}</div><p> \){rev.text.replace(/</g,'&lt;')}</p><small>${new Date(rev.date).toLocaleDateString('id-ID')}</small>`;
           container.appendChild(div);
         });
     });
   }
 
   function setupStars() {
-    const container = document.getElementById('stars');
-    container.innerHTML = '';
-    for (let i = 1; i <= 5; i++) {
-      const s = document.createElement('span');
-      s.className = 'star';
-      s.textContent = '★';
-      s.onclick = () => {
-        container.querySelectorAll('.star').forEach((el, idx) => el.classList.toggle('active', idx < i));
-      };
-      container.appendChild(s);
+    const c = document.getElementById('stars'); c.innerHTML = '';
+    for (let i=1;i<=5;i++) {
+      const s = document.createElement('span'); s.className='star'; s.textContent='★';
+      s.onclick = () => c.querySelectorAll('.star').forEach((el,idx) => el.classList.toggle('active', idx < i));
+      c.appendChild(s);
     }
   }
 
   document.getElementById('submit-btn').onclick = () => {
     const stars = document.querySelectorAll('#stars .star.active').length;
     const text = document.getElementById('review').value.trim();
-    if (stars === 0) return alert(isID ? 'Pilih bintang dulu!' : 'Select stars first!');
-    if (text.length < 10) return alert(isID ? 'Review minimal 10 karakter!' : 'Review at least 10 characters!');
+    if (stars===0) return alert('Pilih bintang dulu!');
+    if (text.length<10) return alert('Review minimal 10 karakter!');
 
-    const r = ref(db, 'ratings/' + selected.name);
-    runTransaction(r, (current) => {
-      current = current || { sum: 0, count: 0, reviews: {} };
-      current.sum += stars;
-      current.count += 1;
-      current.reviews[Date.now()] = { stars, text, date: Date.now() };
-      return current;
+    const r = ref(db, 'ratings/'+selected.name);
+    runTransaction(r, cur => {
+      cur = cur || {sum:0,count:0,reviews:{}};
+      cur.sum += stars; cur.count += 1;
+      cur.reviews[Date.now()] = {stars, text, date:Date.now()};
+      return cur;
     }).then(() => {
-      alert(t.thanks);
-      document.getElementById('review').value = '';
-      setupStars();
+      alert('Terima kasih atas ratingnya!');
+      document.getElementById('review').value=''; setupStars();
     });
   };
 
-  document.getElementById('search').addEventListener('input', (e) => {
+  document.getElementById('back-btn').onclick = () => {
+    document.getElementById('rating-page').classList.add('hidden');
+    document.getElementById('list-page').classList.remove('hidden');
+    document.getElementById('search').value='';
+  };
+
+  document.getElementById('search').addEventListener('input', e => {
     const q = e.target.value.toLowerCase();
     document.querySelectorAll('.card').forEach(card => {
-      const name = card.querySelector('.name').textContent.toLowerCase();
-      card.style.display = name.includes(q) ? 'block' : 'none';
+      card.style.display = card.querySelector('.name').textContent.toLowerCase().includes(q) ? 'block' : 'none';
     });
   });
 
