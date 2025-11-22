@@ -20,11 +20,9 @@
     .desc{opacity:0.85;font-size:0.95rem;line-height:1.5;margin-bottom:12px}
     .link{color:var(--p);font-weight:700;text-decoration:none;display:inline-block;margin-bottom:12px}
     .rate{color:var(--y);font-weight:800;font-size:1.15rem}
-
     .stars{display:flex;justify-content:center;gap:12px;margin:30px 0}
     .star{font-size:2.6rem;cursor:pointer;user-select:none;transition:.2s;color:#555}
     .star.active{color:var(--y)}
-
     .ta{width:100%;min-height:120px;padding:18px;border:none;border-radius:20px;background:var(--g);color:var(--text);font-family:inherit;font-size:1rem;margin:16px 0;resize:none;backdrop-filter:blur(10px)}
     .btn{width:100%;padding:18px;border:none;border-radius:50px;font-weight:800;font-size:1.1rem;cursor:pointer;margin:10px 0;transition:.2s}
     .btn-p{background:var(--p);color:#fff}
@@ -57,7 +55,7 @@
     <button class="btn btn-p" id="submit-btn">Kirim Rating</button>
 
     <h3 style="margin:40px 0 16px;font-size:1.3rem" id="recent-title">Review Terbaru</h3>
-    <div class="rev" id="reviews"></div>
+    <div class="rev" id="reviews">Memuat...</div>
 
     <button class="btn btn-b" id="back-btn">Kembali ke Daftar</button>
   </div>
@@ -84,17 +82,16 @@
   const t = {
     subtitle: isID ? "Beri rating & review untuk semua proyek RifqyDev" : "Rate & review all RifqyDev projects",
     search: isID ? "Cari proyek..." : "Search projects...",
-    open: isID ? "Buka Proyek" : "Open Project",
+    open: isID ? "Buka Proyek →" : "Open Project →",
     avgSuffix: isID ? "ulasan" : "reviews",
     placeholder: isID ? "Tulis review kamu disini..." : "Write your review here...",
     submit: isID ? "Kirim Rating" : "Submit Rating",
     recent: isID ? "Review Terbaru" : "Latest Reviews",
     back: isID ? "Kembali ke Daftar" : "Back to List",
     noReview: isID ? "Belum ada review" : "No reviews yet",
-    thanks: isID ? "Rating berhasil dikirim! Terima kasih" : "Rating submitted! Thank you"
+    thanks: isID ? "Rating berhasil dikirim! Terima kasih ❤️" : "Rating submitted! Thank you ❤️"
   };
 
-  // Update teks statis
   document.getElementById('subtitle').textContent = t.subtitle;
   document.getElementById('search').placeholder = t.search;
   document.getElementById('submit-btn').textContent = t.submit;
@@ -120,26 +117,28 @@
 
   let selected = null;
 
-  function loadProjects() {
+  function renderProjects() {
     const container = document.getElementById('projects');
     container.innerHTML = '';
     projects.forEach(p => {
+      const card = document.createElement('div');
+      card.className = 'card';
       const projectRef = ref(db, 'ratings/' + p.name);
       onValue(projectRef, (snap) => {
-        const data = snap.val() || {};
-        const avg = data.count ? (data.sum / data.count).toFixed(1) : '0.0';
+        const data = snap.val() || { sum: 0, count: 0 };
+        const avg = data.count > 0 ? (data.sum / data.count).toFixed(1) : '0.0';
         const count = data.count || 0;
-        const card = document.createElement('div');
-        card.className = 'card';
+        const suffix = count === 1 ? (isID ? 'ulasan' : 'review') : t.avgSuffix;
+
         card.innerHTML = `
           <div class="name">${p.name}</div>
           <div class="desc">${p.desc}</div>
-          <a href="\( {p.link}" class="link" target="_blank"> \){t.open} →</a>
-          <div class="rate">\( {avg}/5 ( \){count} ${count === 1 ? (isID?'ulasan':'review') : t.avgSuffix})</div>
+          <a href="\( {p.link}" class="link" target="_blank"> \){t.open}</a>
+          <div class="rate">\( {avg}/5 ( \){count} ${suffix})</div>
         `;
         card.onclick = (e) => { if (!e.target.closest('a')) openProject(p); };
-        container.appendChild(card);
-      }, { onlyOnce: false });
+      });
+      container.appendChild(card);
     });
   }
 
@@ -148,12 +147,12 @@
     document.getElementById('title').textContent = p.name;
     document.getElementById('desc').textContent = p.desc;
     document.getElementById('link').href = p.link;
-    document.getElementById('link').textContent = t.open + ' →';
+    document.getElementById('link').textContent = t.open;
     document.getElementById('list-page').classList.add('hidden');
     document.getElementById('rating-page').classList.remove('hidden');
-    loadRatingSummary();
+    loadSummary();
     loadReviews();
-    resetStars();
+    setupStars();
   }
 
   document.getElementById('back-btn').onclick = () => {
@@ -162,87 +161,83 @@
     document.getElementById('search').value = '';
   };
 
-  function loadRatingSummary() {
-    const projectRef = ref(db, 'ratings/' + selected.name);
-    onValue(projectRef, (snap) => {
-      const data = snap.val() || {};
-      const avg = data.count ? (data.sum / data.count).toFixed(1) : '0.0';
-      const count = data.count || 0;
-      document.getElementById('avg').textContent = `\( {avg}/5 ( \){count} ${count === 1 ? (isID?'ulasan':'review') : t.avgSuffix})`;
+  function loadSummary() {
+    const r = ref(db, 'ratings/' + selected.name);
+    onValue(r, (snap) => {
+      const d = snap.val() || { sum: 0, count: 0 };
+      const avg = d.count > 0 ? (d.sum / d.count).toFixed(1) : '0.0';
+      const count = d.count || 0;
+      const suffix = count === 1 ? (isID ? 'ulasan' : 'review') : t.avgSuffix;
+      document.getElementById('avg').textContent = `\( {avg}/5 ( \){count} ${suffix})`;
     });
   }
 
   function loadReviews() {
-    const reviewsRef = ref(db, 'ratings/' + selected.name + '/reviews');
-    onValue(reviewsRef, (snap) => {
+    const r = ref(db, 'ratings/' + selected.name + '/reviews');
+    onValue(r, (snap) => {
       const container = document.getElementById('reviews');
       container.innerHTML = '';
       if (!snap.val()) {
         container.innerHTML = `<p style="text-align:center;opacity:0.7">${t.noReview}</p>`;
         return;
       }
-      const reviews = Object.values(snap.val()).reverse().slice(0, 10);
-      reviews.forEach(r => {
+      Object.values(snap.val()).reverse().slice(0, 10).forEach(review => {
         const div = document.createElement('div');
         div.className = 'ri';
         div.innerHTML = `
-          <div class="rs">\( {'★'.repeat(r.stars)} \){'☆'.repeat(5 - r.stars)}</div>
-          <p>${r.text}</p>
-          <small>${new Date(r.date).toLocaleDateString(isID ? 'id-ID' : 'en-US')}</small>
+          <div class="rs">\( {'★'.repeat(review.stars)} \){'☆'.repeat(5 - review.stars)}</div>
+          <p>${review.text}</p>
+          <small>${new Date(review.date).toLocaleDateString(isID ? 'id-ID' : 'en-US')}</small>
         `;
         container.appendChild(div);
       });
     });
   }
 
-  function resetStars() {
-    const starsDiv = document.getElementById('stars');
-    starsDiv.innerHTML = '';
+  function setupStars() {
+    const stars = document.getElementById('stars');
+    stars.innerHTML = '';
     for (let i = 1; i <= 5; i++) {
-      const star = document.createElement('span');
-      star.className = 'star';
-      star.textContent = '★';
-      star.onclick = () => setRating(i);
-      starsDiv.appendChild(star);
+      const s = document.createElement('span');
+      s.className = 'star';
+      s.textContent = '★';
+      s.onclick = () => {
+        document.querySelectorAll('.star').forEach((el, idx) => {
+          el.classList.toggle('active', idx < i);
+        });
+      };
+      stars.appendChild(s);
     }
   }
 
-  function setRating(n) {
-    document.querySelectorAll('.star').forEach((s, i) => {
-      s.classList.toggle('active', i < n);
-    });
-  }
-
   document.getElementById('submit-btn').onclick = () => {
-    const stars = document.querySelectorAll('.star.active').length;
+    const active = document.querySelectorAll('.star.active').length;
     const text = document.getElementById('review').value.trim();
-    if (stars === 0) return alert(isID ? 'Pilih bintang dulu!' : 'Choose stars first!');
-    if (text.length < 10) return alert(isID ? 'Review minimal 10 karakter!' : 'Review at least 10 characters!');
+    if (active === 0) return alert(isID ? 'Pilih bintang dulu!' : 'Select stars first!');
+    if (text.length < 10) return alert(isID ? 'Review minimal 10 karakter!' : 'Review at least 10 chars!');
 
-    const projectRef = ref(db, 'ratings/' + selected.name);
-    runTransaction(projectRef, (current) => {
-      if (!current) current = { sum: 0, count: 0, reviews: {} };
-      current.sum += stars;
+    const r = ref(db, 'ratings/' + selected.name);
+    runTransaction(r, (current) => {
+      current = current || { sum: 0, count: 0, reviews: {} };
+      current.sum += active;
       current.count += 1;
-      current.reviews[Date.now()] = { stars, text, date: Date.now() };
+      current.reviews[Date.now()] = { stars: active, text, date: Date.now() };
       return current;
     }).then(() => {
-      alert(t.thanks + ' ❤️');
+      alert(t.thanks);
       document.getElementById('review').value = '';
-      resetStars();
+      setupStars();
     });
   };
 
-  // Search
-  document.getElementById('search').addEventListener('input', () => {
-    const q = document.getElementById('search').value.toLowerCase();
+  document.getElementById('search').addEventListener('input', (e) => {
+    const q = e.target.value.toLowerCase();
     document.querySelectorAll('.card').forEach(card => {
-      const name = card.querySelector('.name').textContent.toLowerCase();
-      card.style.display = name.includes(q) ? 'block' : 'none';
+      card.style.display = card.querySelector('.name').textContent.toLowerCase().includes(q) ? 'block' : 'none';
     });
   });
 
-  loadProjects();
+  renderProjects();
 </script>
 </body>
 </html>
