@@ -3,203 +3,113 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>RifqyRating - Rate Your RifqyDev Projects</title>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap">
+  <title>RifqyRating</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
   <style>
-    :root { --primary: #6c5ce7; --yellow: #ffd43b; --danger: #ff6b6b; --bg: #0f0c29; --glass: rgba(255,255,255,0.08); --text: #fff; --radius: 20px; }
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    body { font-family: 'Poppins', sans-serif; background: linear-gradient(135deg, var(--bg), #302b63); color: var(--text); min-height: 100vh; padding: 20px; }
-    .container { max-width: 500px; margin: 0 auto; }
-    h1 { text-align: center; font-size: 2.5rem; background: linear-gradient(to right, var(--primary), #8f94fb); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 10px; }
-    .subtitle { text-align: center; opacity: 0.8; margin-bottom: 30px; }
-    .search-box { width: 100%; padding: 15px; border: none; border-radius: var(--radius); background: var(--glass); color: var(--text); font-size: 1rem; margin-bottom: 20px; backdrop-filter: blur(10px); }
-    .project-grid { display: grid; grid-template-columns: 1fr; gap: 15px; margin-bottom: 20px; }
-    .project-card { background: var(--glass); padding: 20px; border-radius: var(--radius); cursor: pointer; transition: transform 0.2s; backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.1); }
-    .project-card:hover { transform: translateY(-2px); }
-    .project-name { font-size: 1.3rem; font-weight: 700; margin-bottom: 5px; }
-    .project-desc { opacity: 0.8; font-size: 0.9rem; margin-bottom: 10px; }
-    .project-link { color: var(--primary); text-decoration: none; font-weight: 600; }
-    .rating-page { text-align: center; }
-    .stars { display: flex; justify-content: center; gap: 5px; margin: 20px 0; }
-    .star { font-size: 2rem; color: #ddd; cursor: pointer; transition: color 0.2s; }
-    .star.active { color: var(--yellow); }
-    .review-input { width: 100%; padding: 15px; border: none; border-radius: var(--radius); background: var(--glass); color: var(--text); font-size: 1rem; margin: 15px 0; resize: vertical; min-height: 100px; }
-    .btn { width: 100%; padding: 15px; border: none; border-radius: var(--radius); font-weight: 700; cursor: pointer; transition: background 0.2s; margin: 10px 0; }
-    .btn-primary { background: var(--primary); color: #fff; }
-    .btn-danger { background: var(--danger); color: #fff; }
-    .avg-rating { font-size: 1.5rem; font-weight: 700; color: var(--yellow); margin: 20px 0; }
-    .review-list { margin-top: 20px; }
-    .review-item { background: var(--glass); padding: 15px; border-radius: var(--radius); margin-bottom: 10px; text-align: left; }
-    .review-stars { color: var(--yellow); margin-bottom: 5px; }
-    .back-btn { background: var(--glass); color: var(--text); border: 1px solid var(--primary); }
-    .hidden { display: none; }
+    :root{--p:#6c5ce7;--y:#ffd43b;--r:#ff6b6b;--bg:#0f0c29;--g:rgba(255,255,255,0.08);--text:#fff}
+    *{margin:0;padding:0;box-sizing:border-box}
+    body{font-family:'Poppins',sans-serif;background:linear-gradient(135deg,var(--bg),#302b63);color:var(--text);min-height:100vh;padding:20px}
+    .c{max-width:500px;margin:0 auto}
+    h1{font-size:2.5rem;text-align:center;background:linear-gradient(to right,var(--p),#8f94fb);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+    .s{text-align:center;opacity:0.8;margin-bottom:30px}
+    .in{width:100%;padding:15px;border:none;border-radius:20px;background:var(--g);color:var(--text);font-size:1rem;margin-bottom:20px;backdrop-filter:blur(10px)}
+    .grid{display:grid;gap:15px;margin-bottom:50px}
+    .card{background:var(--g);padding:20px;border-radius:20px;cursor:pointer;transition:.2s;backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,0.1)}
+    .card:hover{transform:translateY(-4px)}
+    .name{font-size:1.3rem;font-weight:700;margin-bottom:5px}
+    .desc{opacity:0.8;font-size:0.9rem;margin-bottom:10px}
+    .link{color:var(--p);text-decoration:none;font-weight:600}
+    .rate{color:var(--y);font-weight:700;margin-top:10px}
+    .stars{display:flex;justify-content:center;gap:8px;margin:20px 0}
+    .star{font-size:2.2rem;color:#444;cursor:pointer;transition:.2s}
+    .star.active,.star:hover{color:var(--y)}
+    .ta{width:100%;padding:15px;border:none;border-radius:20px;background:var(--g);color:var(--text);min-height:100px;resize:vertical;margin:15px 0;font-family:inherit}
+    .btn{width:100%;padding:15px;border:none;border-radius:20px;font-weight:700;cursor:pointer;margin:10px 0}
+    .btn-p{background:var(--p);color:#fff}
+    .btn-b{background:var(--g);color:var(--text);border:1px solid var(--p)}
+    .avg{font-size:1.5rem;color:var(--y);font-weight:700;margin:20px 0}
+    .rev{margin-top:20px}
+    .ri{background:var(--g);padding:15px;border-radius:20px;margin-bottom:10px}
+    .rs{color:var(--y);margin-bottom:5px}
+    .hidden{display:none}
   </style>
 </head>
 <body>
-  <div class="container">
-    <h1>RifqyRating</h1>
-    <p class="subtitle">Rate & Review RifqyDev Projects</p>
+<div class="c">
+  <h1>RifqyRating</h1>
+  <p class="s">Rate & Review RifqyDev Projects</p>
+  <input type="text" class="in" id="search" placeholder="Cari proyek..." onkeyup="filter()">
+  
+  <div id="list" class="grid"></div>
+</div>
+
+<div id="rating" class="c hidden">
+  <div class="card">
+    <h2 id="title">Project</h2>
+    <p id="desc">Deskripsi</p>
+    <a id="link" href="#" target="_blank" class="link">Buka Proyek →</a>
+    <div class="avg" id="avg">0 / 5 (0 reviews)</div>
     
-    <input type="text" class="search-box" id="search" placeholder="Search projects..." onkeyup="filterProjects()">
+    <div class="stars" id="stars"></div>
+    <textarea class="ta" id="review" placeholder="Tulis review kamu..."></textarea>
+    <button class="btn btn-p" onclick="submit()">Submit Rating</button>
     
-    <div id="project-grid" class="project-grid">
-      <!-- Projects loaded dynamically -->
-    </div>
+    <h3 style="margin-top:30px">Review Terbaru</h3>
+    <div id="reviews" class="rev"></div>
+    
+    <button class="btn btn-b" onclick="back()">← Kembali</button>
   </div>
+</div>
 
-  <!-- Rating Modal/Page -->
-  <div id="rating-page" class="rating-page hidden">
-    <div class="project-card">
-      <h2 id="project-title">Project Name</h2>
-      <p id="project-desc">Description</p>
-      <a id="project-link" class="project-link" href="#" target="_blank">Open Project →</a>
-      
-      <div class="avg-rating" id="avg-rating">4.2 / 5 (23 reviews)</div>
-      
-      <div class="stars" id="stars">
-        <span class="star" onclick="setRating(1)">★</span>
-        <span class="star" onclick="setRating(2)">★</span>
-        <span class="star" onclick="setRating(3)">★</span>
-        <span class="star" onclick="setRating(4)">★</span>
-        <span class="star" onclick="setRating(5)">★</span>
-      </div>
-      
-      <textarea class="review-input" id="review-text" placeholder="Write your review..."></textarea>
-      <button class="btn btn-primary" onclick="submitRating()">Submit Rating</button>
-      
-      <h3>Recent Reviews</h3>
-      <div id="review-list" class="review-list"></div>
-      
-      <button class="btn back-btn" onclick="backToList()">← Back to List</button>
-    </div>
-  </div>
+<script>
+  // GANTI DENGAN CONFIG FIREBASE KAMU SENDIRI NANTI!
+  const firebaseConfig = {
+    apiKey: "AIzaSyDWa2j1234567890abcdef1234567890", // nanti ganti
+    authDomain: "rifqyrating.firebaseapp.com",
+    databaseURL: "https://rifqyrating-default-rtdb.asia-southeast1.firebasedatabase.app",
+    projectId: "rifqyrating",
+    storageBucket: "rifqyrating.appspot.com",
+    messagingSenderId: "1234567890",
+    appId: "1:1234567890:web:abcdef1234567890"
+  };
+  firebase.initializeApp(firebaseConfig);
+  const db = firebase.database().ref('ratings');
 
-  <script>
-    const projects = [
-      { name: 'ArchiveMods', desc: 'Portal arsip modifikasi, eksperimen, dan tools digital dari RifqyDev.', link: 'https://rifqydev.my.id' },
-      { name: 'RifqyMaps', desc: 'Jelajahi lokasi, cari tempat menarik, dan integrasi peta untuk semua kebutuhanmu.', link: 'https://maps.rifqydev.my.id' },
-      { name: 'RifqyTask', desc: 'Kelola dan pantau tugasmu dengan tampilan modern dan progress tracker.', link: 'https://task.rifqydev.my.id' },
-      { name: 'RifqyNotes', desc: 'Catat ide, belajar, atau to-do dengan markdown preview dan kategori.', link: 'https://notes.rifqydev.my.id' },
-      { name: 'RifqyStudy', desc: 'Belajar interaktif dengan quiz, flashcard, dan latihan soal yang bisa kamu sesuaikan.', link: 'https://study.rifqydev.my.id' },
-      { name: 'RifqyConverter', desc: 'Konversi satuan, mata uang, dan data dengan cepat dan akurat.', link: 'https://converter.rifqydev.my.id' },
-      { name: 'RifqyCompress', desc: 'Kompres gambar dan file langsung dari browser tanpa install apapun.', link: 'https://compress.rifqydev.my.id' },
-      { name: 'RifqyCalory', desc: 'Hitung kalori makanan dan pantau asupan harianmu dengan mudah.', link: 'https://calory.rifqydev.my.id' },
-      { name: 'RifqyWeather', desc: 'Lihat cuaca harian dan prakiraan lokal dengan tampilan minimalis.', link: 'https://weather.rifqydev.my.id' },
-      { name: 'RifqyTranslate', desc: 'Terjemahkan teks antar bahasa dengan cepat dan dukungan multi-bahasa.', link: 'https://translate.rifqydev.my.id' },
-      { name: 'RifqyQR', desc: 'Buat dan scan QR code untuk link, teks, dan data lainnya secara instan.', link: 'https://qr.rifqydev.my.id' },
-      { name: 'RifqyBudget', desc: 'Kelola keuangan pribadi, pantau pengeluaran, dan rencanakan anggaran dengan mudah.', link: 'https://budget.rifqydev.my.id' },
-      { name: 'RifqyPaste', desc: 'Bagikan teks, kode, atau catatan dengan cepat dan aman melalui pastebin pribadi.', link: 'https://paste.rifqydev.my.id' }
-    ];
+  const projects = [ /* sama seperti sebelumnya, 13 proyek dari dash.rifqydev.my.id */ 
+    {name:"ArchiveMods",desc:"Portal arsip modifikasi, eksperimen, dan tools digital dari RifqyDev.",link:"https://rifqydev.my.id"},
+    {name:"RifqyMaps",desc:"Jelajahi lokasi, cari tempat menarik, dan integrasi peta untuk semua kebutuhanmu.",link:"https://maps.rifqydev.my.id"},
+    {name:"RifqyTask",desc:"Kelola dan pantau tugasmu dengan tampilan modern dan progress tracker.",link:"https://task.rifqydev.my.id"},
+    {name:"RifqyNotes",desc:"Catat ide, belajar, atau to-do dengan markdown preview dan kategori.",link:"https://notes.rifqydev.my.id"},
+    {name:"RifqyStudy",desc:"Belajar interaktif dengan quiz, flashcard, dan latihan soal yang bisa kamu sesuaikan.",link:"https://study.rifqydev.my.id"},
+    {name:"RifqyConverter",desc:"Konversi satuan, mata uang, dan data dengan cepat dan akurat.",link:"https://converter.rifqydev.my.id"},
+    {name:"RifqyCompress",desc:"Kompres gambar dan file langsung dari browser tanpa install apapun.",link:"https://compress.rifqydev.my.id"},
+    {name:"RifqyCalory",desc:"Hitung kalori makanan dan pantau asupan harianmu dengan mudah.",link:"https://calory.rifqydev.my.id"},
+    {name:"RifqyWeather",desc:"Lihat cuaca harian dan prakiraan lokal dengan tampilan minimalis.",link:"https://weather.rifqydev.my.id"},
+    {name:"RifqyTranslate",desc:"Terjemahkan teks antar bahasa dengan cepat dan dukungan multi-bahasa.",link:"https://translate.rifqydev.my.id"},
+    {name:"RifqyQR",desc:"Buat dan scan QR code untuk link, teks, dan data lainnya secara instan.",link:"https://qr.rifqydev.my.id"},
+    {name:"RifqyBudget",desc:"Kelola keuangan pribadi, pantau pengeluaran, dan rencanakan anggaran dengan mudah.",link:"https://budget.rifqydev.my.id"},
+    {name:"RifqyPaste",desc:"Bagikan teks, kode, atau catatan dengan cepat dan aman melalui pastebin pribadi.",link:"https://paste.rifqydev.my.id"}
+  ];
 
-    let ratings = JSON.parse(localStorage.getItem('rifqyRatings') || '{}');
+  let selected = null;
 
-    function loadProjects() {
-      const grid = document.getElementById('project-grid');
-      grid.innerHTML = '';
-      projects.forEach(project => {
-        const card = document.createElement('div');
-        card.className = 'project-card';
-        card.innerHTML = `
-          <h2 class="project-name">${project.name}</h2>
-          <p class="project-desc">${project.desc}</p>
-          <a href="${project.link}" class="project-link" target="_blank">Open Project →</a>
-          <div style="margin-top: 10px; color: var(--yellow); font-weight: 600;">
-            \( {getAvgRating(project.name)} / 5 ( \){getReviewCount(project.name)} reviews)
-          </div>
-        `;
-        card.onclick = () => openRating(project);
-        grid.appendChild(card);
-      });
-    }
+  function load(){const l=document.getElementById('list');l.innerHTML='';projects.forEach(p=>{db.child(p.name).on('value',s=>{const r=s.val()||{};const avg=r.sum?(r.sum/r.count).toFixed(1):0;const c=r.count||0;const card=document.createElement('div');card.className='card';card.innerHTML=`<div class="name">\( {p.name}</div><div class="desc"> \){p.desc}</div><a href="\( {p.link}" class="link" target="_blank">Buka Proyek →</a><div class="rate"> \){avg}/5 (${c} reviews)</div>`;card.onclick=()=>{open(p)};l.appendChild(card)})})}
+  function filter(){const q=document.getElementById('search').value.toLowerCase();document.querySelectorAll('.card').forEach(c=>{c.style.display=c.querySelector('.name').textContent.toLowerCase().includes(q)?'block':'none'})}
+  function open(p){selected=p;document.getElementById('title').textContent=p.name;document.getElementById('desc').textContent=p.desc;document.getElementById('link').href=p.link;document.getElementById('list').parentNode.classList.add('hidden');document.getElementById('rating').classList.remove('hidden');loadReviews();loadAvg()}
+  function back(){document.getElementById('rating').classList.add('hidden');document.getElementById('list').parentNode.classList.remove('hidden');document.getElementById('search').value='';filter()}
+  function loadAvg(){db.child(selected.name).once('value',s=>{const r=s.val()||{};const avg=r.sum?(r.sum/r.count).toFixed(1):0;document.getElementById('avg').textContent=`\( {avg}/5 ( \){r.count||0} reviews)`})}
+  function loadReviews(){db.child(selected.name).child('list').limitToLast(10).on('value',s=>{const rev=document.getElementById('reviews');rev.innerHTML='';if(!s.val()){rev.innerHTML='<p style="opacity:0.7;text-align:center">Belum ada review</p>';return}const data=Object.values(s.val()).reverse();data.forEach(r=>{const d=document.createElement('div');d.className='ri';d.innerHTML=`<div class="rs">\( {'★'.repeat(r.rating)} \){'☆'.repeat(5-r.rating)}</div><p>\( {r.text}</p><small> \){r.date}</small>`;rev.appendChild(d)})})}
+  function submit(){const stars=document.querySelectorAll('.star.active').length;if(stars===0)return alert('Pilih bintang dulu!');const text=document.getElementById('review').value.trim();if(text.length<5)return alert('Review minimal 5 karakter!');const date=new Date().toLocaleDateString('id-ID');db.child(selected.name).transaction(d=>({sum:(d?.sum||0)+stars,count:(d?.count||0)+1,list:{...(d?.list||{}),[Date.now()]:{rating:stars,text,date}}}));alert('Rating berhasil disimpan!');document.getElementById('review').value='';document.querySelectorAll('.star').forEach(s=>s.classList.remove('active'))}
+  
+  // Bintang interaktif
+  document.getElementById('stars').innerHTML = Array(5).fill().map((_,i)=>`<span class="star" onclick="rate(${i+1})">★</span>`).join('');
+  function rate(n){document.querySelectorAll('.star').forEach((s,i)=>{s.classList.toggle('active',i<n)})}
 
-    function filterProjects() {
-      const query = document.getElementById('search').value.toLowerCase();
-      const cards = document.querySelectorAll('.project-card');
-      cards.forEach(card => {
-        const name = card.querySelector('.project-name').textContent.toLowerCase();
-        card.style.display = name.includes(query) ? 'block' : 'none';
-      });
-    }
-
-    function openRating(project) {
-      document.getElementById('project-title').textContent = project.name;
-      document.getElementById('project-desc').textContent = project.desc;
-      document.getElementById('project-link').href = project.link;
-      document.getElementById('avg-rating').textContent = `\( {getAvgRating(project.name)} / 5 ( \){getReviewCount(project.name)} reviews)`;
-      loadReviews(project.name);
-      document.getElementById('project-grid').parentNode.classList.add('hidden');
-      document.getElementById('rating-page').classList.remove('hidden');
-      document.getElementById('stars').innerHTML = ''; // Reset stars
-      for (let i = 1; i <= 5; i++) {
-        const star = document.createElement('span');
-        star.className = 'star';
-        star.textContent = '★';
-        star.onclick = () => setRating(i);
-        document.getElementById('stars').appendChild(star);
-      }
-    }
-
-    function backToList() {
-      document.getElementById('rating-page').classList.add('hidden');
-      document.getElementById('project-grid').parentNode.classList.remove('hidden');
-      document.getElementById('search').value = '';
-      filterProjects();
-    }
-
-    function setRating(rating) {
-      document.querySelectorAll('.star').forEach((star, index) => {
-        star.classList.toggle('active', index < rating);
-      });
-    }
-
-    function submitRating() {
-      const project = document.getElementById('project-title').textContent;
-      const rating = document.querySelectorAll('.star.active').length;
-      const review = document.getElementById('review-text').value.trim();
-      if (rating === 0) return alert('Pilih rating bintang!');
-      if (review === '') return alert('Tulis review singkat!');
-
-      if (!ratings[project]) ratings[project] = [];
-      ratings[project].push({ rating, review, date: new Date().toLocaleDateString('id-ID') });
-      localStorage.setItem('rifqyRatings', JSON.stringify(ratings));
-      alert('Review disubmit!');
-      loadReviews(project);
-      document.getElementById('review-text').value = '';
-      setRating(0);
-    }
-
-    function getAvgRating(project) {
-      if (!ratings[project] || ratings[project].length === 0) return 0;
-      const sum = ratings[project].reduce((acc, r) => acc + r.rating, 0);
-      return (sum / ratings[project].length).toFixed(1);
-    }
-
-    function getReviewCount(project) {
-      return ratings[project] ? ratings[project].length : 0;
-    }
-
-    function loadReviews(project) {
-      const list = document.getElementById('review-list');
-      list.innerHTML = '';
-      if (!ratings[project] || ratings[project].length === 0) {
-        list.innerHTML = '<p style="opacity: 0.7; text-align: center;">Belum ada review</p>';
-        return;
-      }
-      ratings[project].slice(-5).reverse().forEach(r => {
-        const div = document.createElement('div');
-        div.className = 'review-item';
-        div.innerHTML = `
-          <div class="review-stars">\( {'★'.repeat(r.rating)} \){'☆'.repeat(5 - r.rating)}</div>
-          <p>${r.review}</p>
-          <small>${r.date}</small>
-        `;
-        list.appendChild(div);
-      });
-    }
-
-    // Init
-    loadProjects();
-  </script>
+  load();
+</script>
 </body>
 </html>
