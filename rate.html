@@ -3,34 +3,36 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Rating Proyek</title>
+  <title>Rate Proyek - RifqyRating</title>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;800&display=swap" rel="stylesheet">
   <style>
     :root{--p:#6c5ce7;--y:#ffd43b;--bg:#0f0c29;--g:rgba(255,255,255,0.08);--text:#fff;--radius:24px}
     *{margin:0;padding:0;box-sizing:border-box}
     body{font-family:'Poppins',sans-serif;background:linear-gradient(135deg,var(--bg),#302b63,#24243e);color:var(--text);min-height:100dvh;padding:20px 16px;display:flex;flex-direction:column}
     .c{max-width:500px;margin:0 auto;width:100%;flex:1;display:flex;flex-direction:column}
-    .card{background:var(--g);backdrop-filter:blur(20px);border:1px solid rgba(255,255,255,0.12);border-radius:var(--radius);padding:24px;display:flex;flex-direction:column;flex:1}
+    .card{background:var(--g);backdrop-filter:blur(20px);border:1px solid rgba(255,255,255,0.12);border-radius:var(--radius);padding:24px;display:flex;flex-direction:column;flex:1;box-shadow:0 12px 32px rgba(0,0,0,0.4)}
+    h2{font-size:2rem;font-weight:800;margin-bottom:12px}
+    .desc{opacity:0.85;font-size:0.95rem;line-height:1.5;margin-bottom:16px}
+    .avg{font-size:1.9rem;font-weight:800;color:var(--y);text-align:center;margin:20px 0}
     .stars{display:flex;justify-content:center;gap:12px;margin:30px 0}
     .star{font-size:2.6rem;cursor:pointer;user-select:none;color:#555;transition:.2s}
     .star.active{color:var(--y)}
-    .ta{width:100%;min-height:120px;padding:18px;border:none;border-radius:20px;background:var(--g);color:var(--text);font-family:inherit;font-size:1rem;margin:16px 0;resize:none;backdrop-filter:blur(10px)}
-    .in{width:100%;padding:18px 20px;border:none;border-radius:50px;background:var(--g);color:var(--text);font-size:1.1rem;margin:16px 0;backdrop-filter:blur(12px)}
+    .in,.ta{width:100%;padding:18px;border:none;border-radius:20px;background:var(--g);color:var(--text);font-family:inherit;font-size:1rem;margin:16px 0;backdrop-filter:blur(10px)}
+    .ta{min-height:120px;resize:none}
     .btn{width:100%;padding:18px;border:none;border-radius:50px;font-weight:800;font-size:1.1rem;cursor:pointer;margin:10px 0;transition:.2s}
     .btn-p{background:var(--p);color:#fff}
     .btn-b{background:var(--g);color:var(--text);border:2px solid var(--p)}
-    .avg{font-size:1.9rem;font-weight:800;color:var(--y);text-align:center;margin:20px 0}
     .rev{flex:1;overflow-y:auto;margin-top:20px}
     .ri{background:var(--g);padding:18px;border-radius:20px;margin-bottom:12px}
-    .rs{font-size:1.5rem;margin-bottom:6px}
+    .rs{font-size:1.5rem;margin-bottom:6px;letter-spacing:2px}
     .by{font-weight:600;color:var(--p);font-size:0.9rem;margin-bottom:4px}
   </style>
 </head>
 <body>
 <div class="c">
   <div class="card">
-    <h2 id="title" style="font-size:2rem;margin-bottom:12px">Loading...</h2>
-    <p id="desc" class="desc"></p>
+    <h2 id="title">Loading...</h2>
+    <p id="desc" class="desc">Memuat deskripsi...</p>
     <div class="avg" id="avg">0.0 / 5 (0 ulasan)</div>
 
     <div class="stars" id="stars"></div>
@@ -38,8 +40,10 @@
     <textarea class="ta" id="review" placeholder="Tulis review kamu disini..."></textarea>
     <button class="btn btn-p" id="submit">Kirim Rating</button>
 
-    <h3 style="margin:40px 0 16px">Review Terbaru</h3>
-    <div class="rev" id="reviews">Memuat...</div>
+    <h3 style="margin:40px 0 16px;font-size:1.3rem">Review Terbaru</h3>
+    <div class="rev" id="reviews">
+      <p style="text-align:center;opacity:0.6">Memuat review...</p>
+    </div>
 
     <button class="btn btn-b" onclick="history.back()">Kembali</button>
   </div>
@@ -55,72 +59,121 @@
   });
   const db = getDatabase(app);
 
+  // Ambil nama proyek dari URL
   const urlParams = new URLSearchParams(window.location.search);
-  const projectName = urlParams.get('n');
-  if (!projectName) { document.body.innerHTML = "<h1 style='text-align:center;color:#fff;margin-top:100px'>Proyek tidak ditemukan</h1>"; }
-
-  const projects = { /* sama seperti di index.html */ };
-  const p = { name: projectName, desc: "Deskripsi proyek", link: "#" };
-
-  document.getElementById('title').textContent = projectName;
-  document.getElementById('desc').textContent = p.desc || "Loading...";
-
-  function loadSummary() {
-    const r = ref(db, 'ratings/' + projectName);
-    onValue(r, snap => {
-      const d = snap.val() || {sum:0, count:0};
-      const avg = d.count ? (d.sum / d.count).toFixed(1) : '0.0';
-      const count = d.count || 0;
-      document.getElementById('avg').textContent = `\( {avg}/5 ( \){count} ulasan)`;
-    });
+  const projectName = decodeURIComponent(urlParams.get('n') || '');
+  if (!projectName) {
+    document.body.innerHTML = "<h1 style='text-align:center;color:#fff;margin-top:100px'>Proyek tidak ditemukan</h1>";
   }
 
-  function loadReviews() {
+  // Daftar proyek + deskripsi (sama seperti di index.html)
+  const projects = {
+    "ArchiveMods": "Portal arsip modifikasi, eksperimen, dan tools digital dari RifqyDev.",
+    "RifqyMaps": "Jelajahi lokasi, cari tempat menarik, dan integrasi peta.",
+    "RifqyTask": "Kelola dan pantau tugasmu dengan tampilan modern.",
+    "RifqyNotes": "Catat ide, belajar, atau to-do dengan markdown.",
+    "RifqyStudy": "Belajar interaktif dengan quiz dan flashcard.",
+    "RifqyConverter": "Konversi satuan, mata uang, dan data dengan cepat.",
+    "RifqyCompress": "Kompres gambar dan file langsung dari browser.",
+    "RifqyCalory": "Hitung kalori makanan dan pantau asupan harianmu.",
+    "RifqyWeather": "Lihat cuaca harian dan prakiraan lokal.",
+    "RifqyTranslate": "Terjemahkan teks antar bahasa dengan cepat.",
+    "RifqyQR": "Buat dan scan QR code secara instan.",
+    "RifqyBudget": "Kelola keuangan pribadi dan anggaran.",
+    "RifqyPaste": "Bagikan teks, kode, atau catatan dengan cepat."
+  };
+
+  // Update judul & deskripsi
+  document.getElementById('title').textContent = projectName;
+  document.getElementById('desc').textContent = projects[projectName] || "Deskripsi tidak tersedia";
+
+  // Update rating rata-rata
+  const ratingRef = ref(db, 'ratings/' + projectName);
+  onValue(ratingRef, snap => {
+    const data = snap.val();
+    if (!data || data.count === 0) {
+      document.getElementById('avg').textContent = "0.0 / 5 (0 ulasan)";
+    } else {
+      const avg = (data.sum / data.count).toFixed(1);
+      const count = data.count;
+      document.getElementById('avg').textContent = `\( {avg} / 5 ( \){count} ulasan)`;
+    }
+  });
+
+  // Load review
+  const reviewsRef = ref(db, 'ratings/' + projectName + '/reviews');
+  onValue(reviewsRef, snap => {
     const container = document.getElementById('reviews');
-    const r = ref(db, 'ratings/' + projectName + '/reviews');
-    onValue(r, snap => {
-      container.innerHTML = '';
-      if (!snap.val()) { container.innerHTML = '<p style="text-align:center;opacity:0.7">Belum ada review</p>'; return; }
-      Object.values(snap.val()).sort((a,b) => b.date - a.date).slice(0,20).forEach(rev => {
-        const stars = '★★★★★'.substring(0,rev.stars) + '☆☆☆☆☆'.substring(0,5-rev.stars);
-        const name = rev.name ? `— ${rev.name}` : '— Anonim';
-        const div = document.createElement('div'); div.className='ri';
-        div.innerHTML = `<div class="rs">\( {stars}</div><div class="by"> \){name}</div><p>\( {rev.text.replace(/</g,'&lt;')}</p><small> \){new Date(rev.date).toLocaleDateString('id-ID')}</small>`;
+    container.innerHTML = '';
+    if (!snap.val()) {
+      container.innerHTML = '<p style="text-align:center;opacity:0.7">Belum ada review</p>';
+      return;
+    }
+    Object.values(snap.val())
+      .sort((a, b) => b.date - a.date)
+      .slice(0, 20)
+      .forEach(rev => {
+        const stars = '★★★★★'.substring(0, rev.stars) + '☆☆☆☆☆'.substring(0, 5 - rev.stars);
+        const name = rev.name ? `— ${rev.name}` : "— Anonim";
+        const date = new Date(rev.date).toLocaleDateString('id-ID');
+        const div = document.createElement('div');
+        div.className = 'ri';
+        div.innerHTML = `
+          <div class="rs">${stars}</div>
+          <div class="by">${name}</div>
+          <p>${rev.text.replace(/</g, '&lt;')}</p>
+          <small>${date}</small>
+        `;
         container.appendChild(div);
       });
-    });
-  }
+  });
 
+  // Setup bintang
   function setupStars() {
-    const c = document.getElementById('stars'); c.innerHTML = '';
-    for (let i=1;i<=5;i++) {
-      const s = document.createElement('span'); s.className='star'; s.textContent='★';
-      s.onclick = () => c.querySelectorAll('.star').forEach((el,idx) => el.classList.toggle('active', idx < i));
-      c.appendChild(s);
+    const container = document.getElementById('stars');
+    container.innerHTML = '';
+    for (let i = 1; i <= 5; i++) {
+      const star = document.createElement('span');
+      star.className = 'star';
+      star.textContent = '★';
+      star.onclick = () => {
+        container.querySelectorAll('.star').forEach((s, idx) => {
+          s.classList.toggle('active', idx < i);
+        });
+      };
+      container.appendChild(star);
     }
   }
 
+  // Kirim rating
   document.getElementById('submit').onclick = () => {
-    const stars = document.querySelectorAll('#stars .star.active').length;
-    const text = document.getElementById('review').value.trim();
-    const name = document.getElementById('name').value.trim() || "Anonim";
-    if (stars===0) return alert('Pilih bintang dulu!');
-    if (text.length<10) return alert('Review minimal 10 karakter!');
+    const selectedStars = document.querySelectorAll('#stars .star.active').length;
+    const reviewText = document.getElementById('review').value.trim();
+    const userName = document.getElementById('name').value.trim() || "Anonim";
 
-    const r = ref(db, 'ratings/' + projectName);
-    runTransaction(r, cur => {
-      cur = cur || {sum:0,count:0,reviews:{}};
-      cur.sum += stars; cur.count += 1;
-      cur.reviews[Date.now()] = {stars, text, name, date:Date.now()};
-      return cur;
+    if (selectedStars === 0) return alert("Pilih bintang dulu!");
+    if (reviewText.length < 10) return alert("Review minimal 10 karakter!");
+
+    runTransaction(ratingRef, current => {
+      current = current || { sum: 0, count: 0, reviews: {} };
+      current.sum += selectedStars;
+      current.count += 1;
+      current.reviews[Date.now()] = {
+        stars: selectedStars,
+        text: reviewText,
+        name: userName,
+        date: Date.now()
+      };
+      return current;
     }).then(() => {
-      alert('Terima kasih!');
-      document.getElementById('review').value=''; document.getElementById('name').value='';
+      alert("Terima kasih atas rating & reviewnya!");
+      document.getElementById('review').value = '';
+      document.getElementById('name').value = '';
       setupStars();
     });
   };
 
-  loadSummary(); loadReviews(); setupStars();
+  setupStars();
 </script>
 </body>
 </html>
