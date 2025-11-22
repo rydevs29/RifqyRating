@@ -47,14 +47,14 @@
   <div class="card" style="flex:1;display:flex;flex-direction:column">
     <h2 id="title" style="font-size:2rem;margin-bottom:12px"></h2>
     <p id="desc" class="desc"></p>
-    <a id="link" href="#" target="_blank" class="link" style="font-weight:700">Buka Proyek</a>
+    <a id="link" href="#" target="_blank" class="link">Buka Proyek</a>
     <div class="avg" id="avg">0.0 / 5 (0 ulasan)</div>
 
     <div class="stars" id="stars"></div>
     <textarea class="ta" id="review" placeholder="Tulis review kamu disini..."></textarea>
     <button class="btn btn-p" id="submit-btn">Kirim Rating</button>
 
-    <h3 style="margin:40px 0 16px;font-size:1.3rem" id="recent-title">Review Terbaru</h3>
+    <h3 style="margin:40px 0 16px;font-size:1.3rem">Review Terbaru</h3>
     <div class="rev" id="reviews"></div>
 
     <button class="btn btn-b" id="back-btn">Kembali ke Daftar</button>
@@ -79,26 +79,20 @@
   const db = getDatabase(app);
 
   const isID = navigator.language.startsWith('id');
+
   const t = {
-    subtitle: isID ? "Beri rating & review untuk semua proyek RifqyDev" : "Rate & review all RifqyDev projects",
-    search: isID ? "Cari proyek..." : "Search projects...",
     open: isID ? "Buka Proyek →" : "Open Project →",
-    avgSuffix: isID ? "ulasan" : "reviews",
     placeholder: isID ? "Tulis review kamu disini..." : "Write your review here...",
     submit: isID ? "Kirim Rating" : "Submit Rating",
-    recent: isID ? "Review Terbaru" : "Latest Reviews",
     back: isID ? "Kembali ke Daftar" : "Back to List",
     noReview: isID ? "Belum ada review" : "No reviews yet",
-    thanks: isID ? "Rating berhasil dikirim! Terima kasih ❤️" : "Rating submitted! Thank you ❤️"
+    thanks: isID ? "Terima kasih atas ratingnya!" : "Thank you for your rating!"
   };
 
-  document.getElementById('subtitle').textContent = t.subtitle;
-  document.getElementById('search').placeholder = t.search;
+  // Update teks statis
   document.getElementById('submit-btn').textContent = t.submit;
-  document.getElementById('recent-title').textContent = t.recent;
   document.getElementById('back-btn').textContent = t.back;
   document.getElementById('review').placeholder = t.placeholder;
-  document.getElementById('link').textContent = t.open;
 
   const projects = [
     {name:"ArchiveMods", desc:isID?"Portal arsip modifikasi, eksperimen, dan tools digital dari RifqyDev.":"Archive portal for mods, experiments, and digital tools by RifqyDev.", link:"https://rifqydev.my.id"},
@@ -116,28 +110,37 @@
     {name:"RifqyPaste", desc:isID?"Bagikan teks, kode, atau catatan dengan cepat.":"Share text, code, or notes quickly.", link:"https://paste.rifqydev.my.id"}
   ];
 
+  function getReviewText(count) {
+    if (count === 0) return isID ? "Belum ada ulasan" : "No reviews";
+    if (count === 1) return isID ? "1 ulasan" : "1 review";
+    return `\( {count} \){isID ? "ulasan" : "reviews"}`;
+  }
+
   function loadProjects() {
     const container = document.getElementById('projects');
     container.innerHTML = '';
     projects.forEach(p => {
       const card = document.createElement('div');
       card.className = 'card';
+
+      // Set konten statis dulu
       card.innerHTML = `
         <div class="name">${p.name}</div>
         <div class="desc">${p.desc}</div>
         <a href="\( {p.link}" class="link" target="_blank"> \){t.open}</a>
-        <div class="rate" id="rate-\( {p.name}">0.0/5 (0 \){t.avgSuffix})</div>
+        <div class="rate">0.0/5 (${getReviewText(0)})</div>
       `;
+
       card.onclick = (e) => { if (!e.target.closest('a')) openProject(p); };
       container.appendChild(card);
 
+      // Update rating real-time
       const rateRef = ref(db, 'ratings/' + p.name);
       onValue(rateRef, (snap) => {
         const data = snap.val() || { sum: 0, count: 0 };
         const avg = data.count ? (data.sum / data.count).toFixed(1) : '0.0';
         const count = data.count || 0;
-        const suffix = count === 1 ? (isID ? 'ulasan' : 'review') : t.avgSuffix;
-        document.getElementById(`rate-\( {p.name}`).textContent = ` \){avg}/5 (\( {count} \){suffix})`;
+        card.querySelector('.rate').textContent = `\( {avg}/5 ( \){getReviewText(count)})`;
       });
     });
   }
@@ -148,6 +151,7 @@
     document.getElementById('title').textContent = p.name;
     document.getElementById('desc').textContent = p.desc;
     document.getElementById('link').href = p.link;
+    document.getElementById('link').textContent = t.open;
     document.getElementById('list-page').classList.add('hidden');
     document.getElementById('rating-page').classList.remove('hidden');
     loadSummary();
@@ -155,20 +159,13 @@
     setupStars();
   }
 
-  document.getElementById('back-btn').onclick = () => {
-    document.getElementById('rating-page').classList.add('hidden');
-    document.getElementById('list-page').classList.remove('hidden');
-    document.getElementById('search').value = '';
-  };
-
   function loadSummary() {
     const r = ref(db, 'ratings/' + selected.name);
     onValue(r, (snap) => {
       const d = snap.val() || { sum: 0, count: 0 };
       const avg = d.count ? (d.sum / d.count).toFixed(1) : '0.0';
       const count = d.count || 0;
-      const suffix = count === 1 ? (isID ? 'ulasan' : 'review') : t.avgSuffix;
-      document.getElementById('avg').textContent = `\( {avg}/5 ( \){count} ${suffix})`;
+      document.getElementById('avg').textContent = `\( {avg}/5 ( \){getReviewText(count)})`;
     });
   }
 
@@ -186,7 +183,7 @@
         .sort((a, b) => b.date - a.date)
         .slice(0, 10)
         .forEach(review => {
-          const stars = '★★★★★☆☆☆☆☆'.substring(5 - review.stars, 10 - review.stars);
+          const stars = '★★★★★'.substring(0, review.stars) + '☆☆☆☆☆'.substring(0, 5 - review.stars);
           const div = document.createElement('div');
           div.className = 'ri';
           div.innerHTML = `
