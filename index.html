@@ -11,21 +11,17 @@
     :root{--p:#6c5ce7;--y:#ffd43b;--bg:#0f0c29;--g:rgba(255,255,255,0.08);--text:#fff;--radius:26px}
     *{margin:0;padding:0;box-sizing:border-box}
     body{font-family:'Poppins',sans-serif;background:linear-gradient(135deg,#0f0c29,#302b63,#24243e);color:var(--text);min-height:100dvh;padding:20px;display:flex;flex-direction:column}
-    .c{max-width:500px;margin:auto;width:100%;flex:1;display:flex;flex-direction:column;animation:fadeIn .8s}
-    @keyframes fadeIn{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:none}}
+    .c{max-width:500px;margin:auto;width:100%;flex:1;display:flex;flex-direction:column}
     h1{font-size:3rem;font-weight:800;background:linear-gradient(to right,var(--p),#a29bfe);-webkit-background-clip:text;-webkit-text-fill-color:transparent;text-align:center;margin:20px 0 8px}
     .sub{text-align:center;opacity:0.9;margin-bottom:30px;font-weight:600}
-    .search{width:100%;padding:18px 24px;border:none;border-radius:50px;background:var(--g);color:var(--text);font-size:1.1rem;margin-bottom:20px;backdrop-filter:blur(12px);outline:none;transition:.3s}
-    .search:focus{box-shadow:0 0 20px rgba(108,92,231,0.4)}
-    .grid{display:grid;gap:18px;animation:fadeIn .6s}
-    .card{background:var(--g);backdrop-filter:blur(20px);border:1px solid rgba(255,255,255,0.1);border-radius:var(--radius);padding:26px;transition:.3s;box-shadow:0 12px 32px rgba(0,0,0,0.5);cursor:pointer;overflow:hidden}
-    .card:hover{transform:translateY(-8px);border-color:var(--p);box-shadow:0 20px 40px rgba(108,92,231,0.3)}
+    .search{width:100%;padding:18px 24px;border:none;border-radius:50px;background:var(--g);color:var(--text);font-size:1.1rem;margin-bottom:20px;backdrop-filter:blur(12px);outline:none}
+    .grid{display:grid;gap:18px}
+    .card{background:var(--g);backdrop-filter:blur(20px);border:1px solid rgba(255,255,255,0.1);border-radius:var(--radius);padding:26px;transition:.3s;box-shadow:0 12px 32px rgba(0,0,0,0.5);cursor:pointer}
+    .card:hover{transform:translateY(-8px);border-color:var(--p)}
     .name{font-size:1.45rem;font-weight:800;margin-bottom:8px}
     .desc{opacity:0.85;font-size:0.95rem;line-height:1.5;margin-bottom:14px}
     .link{color:var(--p);font-weight:700;text-decoration:none;display:block;margin:12px 0 8px}
     .rate{color:var(--y);font-weight:800;font-size:1.2rem}
-    .skeleton{background:#333;height:20px;border-radius:8px;margin:8px 0;animation:pulse 1.5s infinite}
-    @keyframes pulse{0%{opacity:.6}50%{opacity:1}100%{opacity:.6}}
   </style>
 </head>
 <body>
@@ -38,16 +34,7 @@
 
 <script type="module">
   import { renderProjects } from "./data.js";
-  // Langsung render skeleton dulu biar gak kosong
-  document.getElementById('projects').innerHTML = Array(6).fill().map(() => `
-    <div class="card">
-      <div class="name"><div class="skeleton" style="width:70%"></div></div>
-      <div class="desc"><div class="skeleton" style="width:90%"></div><div class="skeleton" style="width:80%"></div></div>
-      <div class="link"><div class="skeleton" style="width:60%"></div></div>
-      <div class="rate"><div class="skeleton" style="width:50%"></div></div>
-    </div>
-  `).join('');
-  renderProjects(); // Baru load data dari Firebase
+  renderProjects();
 </script>
 </body>
 </html>
