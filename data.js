@@ -1,6 +1,6 @@
-// 3. data.js (VERSI FINAL – 100% FIXED)
+// data.js — FINAL & SUPER CEPAT
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js";
-import { getDatabase, ref, onValue, runTransaction } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-database.js";
+import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-database.js";
 
 const app = initializeApp({
   apiKey: "AIzaSyBLC8YVaXY429dwo-H7rp0l5gbTsIdTAJY",
@@ -8,7 +8,7 @@ const app = initializeApp({
 });
 const db = getDatabase(app);
 
-export const projects = [
+export const projects = [ /* sama seperti sebelumnya, 13 proyek */ 
   {name:"ArchiveMods", desc:"Portal arsip modifikasi, eksperimen, dan tools digital dari RifqyDev.", link:"https://rifqydev.my.id"},
   {name:"RifqyMaps", desc:"Jelajahi lokasi dan cari tempat menarik dengan peta interaktif.", link:"https://maps.rifqydev.my.id"},
   {name:"RifqyTask", desc:"Kelola tugas harian dengan tampilan modern dan simpel.", link:"https://task.rifqydev.my.id"},
@@ -26,7 +26,7 @@ export const projects = [
 
 export function renderProjects() {
   const container = document.getElementById('projects');
-  container.innerHTML = '';
+  
   projects.forEach(p => {
     const card = document.createElement('div');
     card.className = 'card';
@@ -39,97 +39,26 @@ export function renderProjects() {
     card.onclick = () => location.href = `rate.html?n=${encodeURIComponent(p.name)}`;
     container.appendChild(card);
 
-    const r = ref(db, 'ratings/' + p.name);
-    onValue(r, s => {
-      const d = s.val();
-      const el = card.querySelector('.rate');
-      if (!d || d.count === 0) el.textContent = "0.0 / 5 (Belum ada ulasan)";
-      else {
-        const avg = (d.sum / d.count).toFixed(1);
-        const txt = d.count === 1 ? "1 ulasan" : `${d.count} ulasan`;
-        el.textContent = `\( {avg} / 5 ( \){txt})`;
+    const ratingRef = ref(db, 'ratings/' + p.name);
+    onValue(ratingRef, (snap) => {
+      const data = snap.val();
+      const rateEl = card.querySelector('.rate');
+      if (!data || data.count === 0) {
+        rateEl.textContent = "0.0 / 5 (Belum ada ulasan)";
+      } else {
+        const avg = (data.sum / data.count).toFixed(1);
+        const text = data.count === 1 ? "1 ulasan" : `${data.count} ulasan`;
+        rateEl.textContent = `\( {avg} / 5 ( \){text})`;
       }
+    }, { onlyOnce: false });
+  });
+
+  // Search
+  document.getElementById('search')?.addEventListener('input', (e) => {
+    const query = e.target.value.toLowerCase();
+    document.querySelectorAll('.card').forEach(card => {
+      const name = card.querySelector('.name').textContent.toLowerCase();
+      card.style.display = name.includes(query) ? '' : 'none';
     });
   });
-
-  document.getElementById('search')?.addEventListener('input', e => {
-    const q = e.target.value.toLowerCase();
-    document.querySelectorAll('.card').forEach(c => {
-      c.style.display = c.querySelector('.name').textContent.toLowerCase().includes(q) ? '' : 'none';
-    });
-  });
-}
-
-export function handleRatingPage() {
-  const url = new URLSearchParams(location.search);
-  const name = decodeURIComponent(url.get('n') || '');
-  if (!name) return document.body.innerHTML = "<h1 style='text-align:center;color:#fff;padding-top:100px'>Proyek tidak ditemukan</h1>";
-
-  const desc = projects.find(p => p.name === name)?.desc || "Deskripsi tidak tersedia";
-  document.getElementById('title').textContent = name;
-  document.getElementById('desc').textContent = desc;
-
-  const ratingRef = ref(db, 'ratings/' + name);
-
-  );
-  onValue(ratingRef, s => {
-    const d = s.val() || {sum:0,count:0};
-    const avg = d.count > 0 ? (d.sum / d.count).toFixed(1) : "0.0";
-    const txt = d.count === 0 ? "Belum ada ulasan" : (d.count === 1 ? "1 ulasan" : `${d.count} ulasan`);
-    document.getElementById('avg').textContent = `\( {avg} / 5 ( \){txt})`;
-  });
-
-  const reviewsRef = ref(db, 'ratings/' + name + '/reviews');
-  const reviewsDiv = document.getElementById('reviews');
-  onValue(reviewsRef, s => {
-    reviewsDiv.innerHTML = '';
-    if (!s.val()) {
-      reviewsDiv.innerHTML = '<p style="text-align:center;opacity:0.7">Belum ada review</p>';
-      return;
-    }
-    Object.values(s.val())
-      .sort((a,b)=>b.date - a.date)
-      .slice(0,30)
-      .forEach(r => {
-        const stars = '★★★★★'.slice(0,r.stars) + '☆☆☆☆☆'.slice(r.stars);
-        const n = r.name?.trim() || "Anonim";
-        const date = new Date(r.date).toLocaleDateString('id-ID');
-        const el = document.createElement('div');
-        el.className = 'review';
-        el.innerHTML = `<div class="r-stars">\( {stars}</div><div class="r-name">— \){n}</div><p>\( {r.text.replace(/</g,'&lt;')}</p><small> \){date}</small>`;
-        reviewsDiv.appendChild(el);
-      });
-  });
-
-  // bintang
-  const starsDiv = document.getElementById('stars');
-  for(let i=1;i<=5;i++){
-    const star = document.createElement('span');
-    star.className='star';
-    star.textContent='★';
-    star.onclick = () => {
-      starsDiv.querySelectorAll('.star').forEach((s,j)=>s.classList.toggle('active',j<i));
-    };
-    starsDiv.appendChild(star);
-  }
-
-  document.getElementById('submit').onclick = () => {
-    const selected = document.querySelectorAll('#stars .star.active').length;
-    const text = document.getElementById('review').value.trim();
-    const nama = document.getElementById('name').value.trim() || "Anonim";
-    if(selected===0) return alert("Pilih bintang dulu!");
-    if(text.length<10) return alert("Review minimal 10 karakter!");
-    runTransaction(ratingRef, cur => {
-      cur = cur || {sum:0,count:0,reviews:{}};
-      cur.sum += selected;
-      cur.count += 1;
-      cur.reviews[Date.now()] = {stars:selected, text, name:nama, date:Date.now()};
-      return cur;
-    }).then(() => {
-      alert("Terima kasih! Rating & review kamu sudah masuk");
-      document.getElementById('review').value = '';
-      document.getElementById('name').value = '';
-      starsDiv.innerHTML=''; for(let i=1;i<=5;i++){const s=document.createElement('span');s.className='star';s.textContent='★';s.onclick=()=>{starsDiv.querySelectorAll('.star').forEach((x,j)=>x.classList.toggle('active',j<i))};starsDiv.appendChild(s);}
-    });
-  };
 }
