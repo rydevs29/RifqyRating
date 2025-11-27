@@ -1,40 +1,137 @@
 <!DOCTYPE html>
-<html lang="id">
+<html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>RifqyRating</title>
-  <link rel="manifest" href="manifest.json">
-  <meta name="theme-color" content="#6c5ce7">
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;800&display=swap" rel="stylesheet">
   <style>
-    :root{--p:#6c5ce7;--y:#ffd43b;--bg:#0f0c29;--g:rgba(255,255,255,0.08);--text:#fff;--radius:26px}
-    *{margin:0;padding:0;box-sizing:border-box}
-    body{font-family:'Poppins',sans-serif;background:linear-gradient(135deg,#0f0c29,#302b63,#24243e);color:var(--text);min-height:100dvh;padding:20px;display:flex;flex-direction:column}
-    .c{max-width:500px;margin:auto;width:100%;flex:1;display:flex;flex-direction:column}
-    h1{font-size:3rem;font-weight:800;background:linear-gradient(to right,var(--p),#a29bfe);-webkit-background-clip:text;-webkit-text-fill-color:transparent;text-align:center;margin:20px 0 8px}
-    .sub{text-align:center;opacity:0.9;margin-bottom:30px;font-weight:600}
-    .search{width:100%;padding:18px 24px;border:none;border-radius:50px;background:var(--g);color:var(--text);font-size:1.1rem;margin-bottom:20px;backdrop-filter:blur(12px);outline:none}
-    .grid{display:grid;gap:18px}
-    .card{background:var(--g);backdrop-filter:blur(20px);border:1px solid rgba(255,255,255,0.1);border-radius:var(--radius);padding:26px;transition:.3s;box-shadow:0 12px 32px rgba(0,0,0,0.5);cursor:pointer}
-    .card:hover{transform:translateY(-8px);border-color:var(--p)}
-    .name{font-size:1.45rem;font-weight:800;margin-bottom:8px}
-    .desc{opacity:0.85;font-size:0.95rem;line-height:1.5;margin-bottom:14px}
-    .link{color:var(--p);font-weight:700;text-decoration:none;display:block;margin:12px 0 8px}
-    .rate{color:var(--y);font-weight:800;font-size:1.2rem}
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', sans-serif;
+      background: #0f172a;
+      color: white;
+    }
+    header {
+      background: #1e293b;
+      padding: 1rem 2rem;
+      font-size: 1.5rem;
+      font-weight: bold;
+      display: flex;
+      align-items: center;
+    }
+    .container {
+      display: flex;
+      flex-wrap: wrap;
+      padding: 2rem;
+      gap: 2rem;
+    }
+    .card {
+      background: #1e293b;
+      padding: 1rem;
+      border-radius: 8px;
+      flex: 1 1 300px;
+    }
+    .stars {
+      color: gold;
+    }
+    .form {
+      background: #f8fafc;
+      color: black;
+      padding: 1rem;
+      border-radius: 8px;
+    }
+    input, textarea {
+      width: 100%;
+      margin: 0.5rem 0;
+      padding: 0.5rem;
+      border-radius: 4px;
+      border: 1px solid #ccc;
+    }
+    button {
+      background: #2563eb;
+      color: white;
+      border: none;
+      padding: 0.5rem 1rem;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    .review {
+      margin-top: 1rem;
+      border-top: 1px solid #ccc;
+      padding-top: 1rem;
+    }
   </style>
 </head>
 <body>
-<div class="c">
-  <h1>RifqyRating</h1>
-  <p class="sub">Beri rating & review untuk semua proyek RifqyDev</p>
-  <input type="text" class="search" id="search" placeholder="Cari proyek...">
-  <div class="grid" id="projects"></div>
-</div>
+  <header>⭐ RifqyRating</header>
+  <div class="container">
+    <div class="card">
+      <h2>RifqyDev Corporation</h2>
+      <div class="stars">★★★★☆</div>
+      <p>4.5 / 5 (11 reviews)</p>
+    </div>
+    <div class="card">
+      <h2>RifqyTask</h2>
+      <div class="stars">★★★★☆</div>
+      <p>4.0 / 5 (5 reviews)</p>
+    </div>
+    <!-- Tambahkan project lain di sini -->
+    <div class="form card">
+      <h3>Submit Review</h3>
+      <input type="text" id="name" placeholder="Name" />
+      <input type="number" id="rating" min="1" max="5" placeholder="Rating (1–5)" />
+      <textarea id="comment" placeholder="Write your comment..."></textarea>
+      <button onclick="submitReview()">Submit</button>
+      <div id="reviews" class="review"></div>
+    </div>
+  </div>
 
-<script type="module">
-  import { renderProjects } from "./data.js";
-  renderProjects();
-</script>
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+    import { getFirestore, collection, addDoc, onSnapshot, query, orderBy } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "YOUR_API_KEY",
+      authDomain: "YOUR_AUTH_DOMAIN",
+      projectId: "YOUR_PROJECT_ID",
+      storageBucket: "YOUR_STORAGE_BUCKET",
+      messagingSenderId: "YOUR_SENDER_ID",
+      appId: "YOUR_APP_ID"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+    const reviewsRef = collection(db, "rifqydev_reviews");
+
+    async function submitReview() {
+      const name = document.getElementById("name").value;
+      const rating = parseInt(document.getElementById("rating").value);
+      const comment = document.getElementById("comment").value;
+      if (!name || !rating || !comment) return alert("Isi semua field dulu ya!");
+
+      await addDoc(reviewsRef, {
+        name,
+        rating,
+        comment,
+        timestamp: new Date()
+      });
+
+      document.getElementById("name").value = "";
+      document.getElementById("rating").value = "";
+      document.getElementById("comment").value = "";
+    }
+
+    const reviewsDiv = document.getElementById("reviews");
+    const q = query(reviewsRef, orderBy("timestamp", "desc"));
+    onSnapshot(q, (snapshot) => {
+      reviewsDiv.innerHTML = "";
+      snapshot.forEach(doc => {
+        const r = doc.data();
+        reviewsDiv.innerHTML += `
+          <p><strong>${r.name}</strong> - ${"★".repeat(r.rating)}<br>${r.comment}</p>
+        `;
+      });
+    });
+  </script>
 </body>
 </html>
