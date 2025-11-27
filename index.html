@@ -1,170 +1,533 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>RifqyRating</title>
-  <style>
-    body {
-      margin: 0;
-      font-family: 'Segoe UI', sans-serif;
-      background: #0f172a;
-      color: white;
-    }
-    header {
-      background: #1e293b;
-      padding: 1rem 2rem;
-      font-size: 1.5rem;
-      font-weight: bold;
-    }
-    .grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-      gap: 2rem;
-      padding: 2rem;
-    }
-    .card {
-      background: #1e293b;
-      border-radius: 10px;
-      padding: 1rem;
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
-    }
-    .stars {
-      color: gold;
-      font-size: 1.2rem;
-    }
-    .btn {
-      background: #2563eb;
-      color: white;
-      border: none;
-      padding: 0.5rem 1rem;
-      border-radius: 5px;
-      text-align: center;
-      text-decoration: none;
-      margin: 0.5rem 0;
-    }
-    .review {
-      font-size: 0.9rem;
-      margin-top: 0.5rem;
-      border-top: 1px solid #334155;
-      padding-top: 0.5rem;
-    }
-    .form {
-      background: #f8fafc;
-      color: black;
-      padding: 1rem;
-      border-radius: 10px;
-      margin: 2rem;
-    }
-    input, textarea {
-      width: 100%;
-      margin: 0.5rem 0;
-      padding: 0.5rem;
-      border-radius: 5px;
-      border: 1px solid #ccc;
-    }
-    button {
-      background: #2563eb;
-      color: white;
-      border: none;
-      padding: 0.5rem 1rem;
-      border-radius: 5px;
-      cursor: pointer;
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RifqyRating Hub</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #121212;
+            --card-bg: #1e1e1e;
+            --text-primary: #f0f0f0;
+            --text-secondary: #aaaaaa;
+            --accent: #007bff;
+            --accent-hover: #0056b3;
+            --border: #333333;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-primary);
+            font-family: 'Poppins', sans-serif;
+            margin: 0;
+            padding: 0;
+            overflow-x: hidden;
+        }
+
+        /* Header */
+        header {
+            border-bottom: 1px solid var(--border);
+            padding: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: var(--card-bg);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        h1 { margin: 0; font-size: 1.2rem; font-weight: 700; letter-spacing: 0.5px; }
+        
+        .lang-toggle button {
+            background: transparent;
+            border: 1px solid var(--border);
+            color: var(--text-secondary);
+            padding: 5px 10px;
+            cursor: pointer;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            transition: 0.3s;
+        }
+        .lang-toggle button.active {
+            background: var(--accent);
+            color: white;
+            border-color: var(--accent);
+        }
+
+        /* MAIN LAYOUT (NEW) */
+        .main-layout {
+            display: flex;
+            flex-wrap: wrap;
+            max-width: 1300px;
+            margin: 0 auto;
+            padding: 20px;
+            gap: 20px;
+        }
+
+        .content-area {
+            flex: 3;
+            min-width: 300px;
+        }
+
+        .sidebar-area {
+            flex: 1;
+            min-width: 280px;
+        }
+
+        /* Grid for Projects */
+        .project-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 20px;
+        }
+
+        /* Card Styles */
+        .card {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            transition: transform 0.2s;
+        }
+
+        .card:hover {
+            border-color: var(--accent);
+            transform: translateY(-2px);
+        }
+
+        .card h2 { font-size: 1.1rem; margin: 0 0 10px 0; font-weight: 600; }
+        .card p { color: var(--text-secondary); font-size: 0.85rem; line-height: 1.5; flex-grow: 1; margin-bottom: 20px; }
+
+        /* Card Footer */
+        .card-footer { margin-top: auto; border-top: 1px solid var(--border); padding-top: 15px; }
+        .rating-display { font-size: 0.9rem; margin-bottom: 15px; font-weight: 600; color: #ffc107; }
+        .rating-count { color: var(--text-secondary); font-weight: 400; font-size: 0.8rem; }
+
+        /* Buttons */
+        .btn-group { display: flex; gap: 10px; }
+        .btn {
+            flex: 1; padding: 10px; border-radius: 6px; text-align: center;
+            text-decoration: none; font-size: 0.8rem; font-weight: 600;
+            cursor: pointer; border: none; transition: 0.2s;
+        }
+        .btn-primary { background: var(--accent); color: white; }
+        .btn-primary:hover { background: var(--accent-hover); }
+        .btn-outline { background: transparent; border: 1px solid var(--border); color: var(--text-secondary); }
+        .btn-outline:hover { border-color: var(--text-primary); color: var(--text-primary); }
+
+        /* SIDEBAR / HISTORY FEED Styles */
+        .history-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 20px;
+            height: fit-content;
+            position: sticky;
+            top: 90px; /* Sticks when scrolling */
+        }
+        
+        .history-header {
+            font-size: 1rem; font-weight: 700; margin-bottom: 15px;
+            padding-bottom: 10px; border-bottom: 1px solid var(--border);
+            display: flex; align-items: center; justify-content: space-between;
+        }
+        
+        .feed-container {
+            max-height: 500px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        /* Scrollbar for feed */
+        .feed-container::-webkit-scrollbar { width: 5px; }
+        .feed-container::-webkit-scrollbar-track { background: var(--bg-color); }
+        .feed-container::-webkit-scrollbar-thumb { background: #333; border-radius: 5px; }
+
+        .feed-item {
+            font-size: 0.85rem;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #2a2a2a;
+            animation: fadeIn 0.5s ease;
+        }
+        .feed-item:last-child { border-bottom: none; }
+        
+        .feed-user { font-weight: 600; color: var(--accent); }
+        .feed-action { color: var(--text-secondary); font-size: 0.8rem; }
+        .feed-project { font-weight: 600; color: var(--text-primary); }
+        .feed-stars { color: #ffc107; display: block; margin: 2px 0; }
+        .feed-comment { font-style: italic; color: #777; font-size: 0.8rem; display: block; margin-top: 4px; }
+        .feed-time { font-size: 0.7rem; color: #555; display: block; margin-top: 5px; text-align: right; }
+
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* Modal */
+        .modal-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.8); display: none; justify-content: center; align-items: center; z-index: 1000;
+        }
+        .modal {
+            background: var(--card-bg); padding: 25px; border-radius: 8px;
+            width: 90%; max-width: 400px; border: 1px solid var(--border);
+        }
+        .form-group { margin-bottom: 15px; }
+        .form-group label { display: block; font-size: 0.8rem; margin-bottom: 5px; color: var(--text-secondary); }
+        .form-input {
+            width: 100%; padding: 10px; background: var(--bg-color); border: 1px solid var(--border);
+            color: white; border-radius: 4px; box-sizing: border-box;
+        }
+        .form-input:focus { outline: none; border-color: var(--accent); }
+
+        /* Star Selector */
+        .rating-select { display: flex; gap: 10px; margin-bottom: 20px; }
+        .rating-opt {
+            cursor: pointer; padding: 5px 10px; background: var(--bg-color);
+            border: 1px solid var(--border); border-radius: 4px; color: var(--text-secondary);
+        }
+        .rating-opt.selected { background: #ffc107; color: black; border-color: #ffc107; font-weight: bold; }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .main-layout { flex-direction: column-reverse; } /* History goes to bottom on mobile, or top if you prefer */
+            .sidebar-area { width: 100%; }
+        }
+    </style>
 </head>
 <body>
-  <header>⭐ RifqyRating</header>
-  <div class="grid" id="projectGrid"></div>
 
-  <div class="form">
-    <h2>Tambah Review</h2>
-    <input type="text" id="project" placeholder="Nama Project (misal: RifqyNotes)" />
-    <input type="text" id="name" placeholder="Nama kamu" />
-    <input type="number" id="rating" min="1" max="5" placeholder="Rating (1–5)" />
-    <textarea id="comment" placeholder="Komentar kamu..."></textarea>
-    <button onclick="submitReview()">Kirim</button>
-  </div>
+    <header>
+        <h1>RIFQYRATING</h1>
+        <div class="lang-toggle">
+            <button id="btn-id" class="active" onclick="changeLang('id')">ID</button>
+            <button id="btn-en" onclick="changeLang('en')">EN</button>
+        </div>
+    </header>
 
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-    import { getFirestore, collection, addDoc, onSnapshot, query, where } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+    <div class="main-layout">
+        
+        <!-- CONTENT: PROJECT GRID -->
+        <div class="content-area">
+            <div id="project-list" class="project-grid">
+                <p style="color: #666;">Memuat data...</p>
+            </div>
+        </div>
 
-    const firebaseConfig = {
-      apiKey: "YOUR_API_KEY",
-      authDomain: "YOUR_AUTH_DOMAIN",
-      projectId: "YOUR_PROJECT_ID",
-      storageBucket: "YOUR_STORAGE_BUCKET",
-      messagingSenderId: "YOUR_SENDER_ID",
-      appId: "YOUR_APP_ID"
-    };
+        <!-- SIDEBAR: LIVE HISTORY -->
+        <aside class="sidebar-area">
+            <div class="history-card">
+                <div class="history-header">
+                    <span id="history-title">Aktivitas Terbaru</span>
+                    <span style="font-size: 0.7rem; color: #555;">● Live</span>
+                </div>
+                <div id="feed-list" class="feed-container">
+                    <p style="color:#666; font-size:0.8rem;">Menunggu data...</p>
+                </div>
+            </div>
+        </aside>
 
-    const app = initializeApp(firebaseConfig);
-    const db = getFirestore(app);
-    const reviewsRef = collection(db, "rifqy_reviews");
+    </div>
 
-    const projects = [
-      { name: "RifqyNotes", url: "https://dash.rifqydev.my.id/notes", description: "Catatan dengan markdown" },
-      { name: "RifqyTask", url: "https://dash.rifqydev.my.id/task", description: "Manajemen tugas & progress" },
-      { name: "RifqyStudy", url: "https://dash.rifqydev.my.id/study", description: "Belajar interaktif & quiz" },
-      { name: "RifqyCompress", url: "https://dash.rifqydev.my.id/compress", description: "Kompres gambar/file" },
-      { name: "RifqyQR", url: "https://dash.rifqydev.my.id/qr", description: "QR generator & scanner" },
-      { name: "RifqyTranslate", url: "https://dash.rifqydev.my.id/translate", description: "Terjemahan multi-bahasa" },
-      { name: "RifqyWeather", url: "https://dash.rifqydev.my.id/weather", description: "Cuaca harian & forecast" },
-      { name: "RifqyCalory", url: "https://dash.rifqydev.my.id/calory", description: "Kalkulasi kalori makanan" },
-      { name: "RifqyPaste", url: "https://dash.rifqydev.my.id/paste", description: "Pastebin pribadi" },
-      { name: "RifqyBudget", url: "https://dash.rifqydev.my.id/budget", description: "Manajemen keuangan pribadi" },
-      { name: "RifqyConverter", url: "https://dash.rifqydev.my.id/converter", description: "Konversi unit & data" },
-      { name: "RifqyMaps", url: "https://dash.rifqydev.my.id/maps", description: "Eksplorasi lokasi & peta" },
-      { name: "ArchiveMods", url: "https://dash.rifqydev.my.id/archivemods", description: "Arsip mods & eksperimen" }
-    ];
+    <!-- Review Modal -->
+    <div id="review-modal" class="modal-overlay">
+        <div class="modal">
+            <h3 id="modal-title" style="margin-top:0; color:#fff;">Review Project</h3>
+            <p style="font-size:0.8rem; color:#aaa; margin-bottom:20px;">Berikan penilaian Anda.</p>
 
-    const grid = document.getElementById("projectGrid");
+            <form id="rating-form">
+                <input type="hidden" id="project-id">
+                
+                <div class="form-group">
+                    <label>Rating</label>
+                    <div class="rating-select" id="star-selector">
+                        <div class="rating-opt" onclick="selectStar(1)">1</div>
+                        <div class="rating-opt" onclick="selectStar(2)">2</div>
+                        <div class="rating-opt" onclick="selectStar(3)">3</div>
+                        <div class="rating-opt" onclick="selectStar(4)">4</div>
+                        <div class="rating-opt" onclick="selectStar(5)">5</div>
+                    </div>
+                    <input type="hidden" id="rating-value" required>
+                </div>
 
-    projects.forEach(project => {
-      const card = document.createElement("div");
-      card.className = "card";
-      card.innerHTML = `
-        <div class="stars" id="stars-${project.name}">⭐⭐⭐⭐⭐</div>
-        <h3>${project.name}</h3>
-        <p>${project.description}</p>
-        <a class="btn" href="${project.url}" target="_blank">Buka</a>
-        <div class="review" id="review-${project.name}">Memuat review...</div>
-      `;
-      grid.appendChild(card);
+                <div class="form-group">
+                    <label>Nama</label>
+                    <input type="text" id="user-name" class="form-input" placeholder="Nama Anda / Anonim" required>
+                </div>
 
-      const q = query(reviewsRef, where("project", "==", project.name));
-      onSnapshot(q, (snapshot) => {
-        const reviews = snapshot.docs.map(doc => doc.data());
-        const avg = reviews.length ? (reviews.reduce((a, r) => a + r.rating, 0) / reviews.length).toFixed(1) : "0.0";
-        document.getElementById(`stars-${project.name}`).innerText = "⭐".repeat(Math.round(avg)) + ` (${avg})`;
-        const reviewHTML = reviews.map(r => `<p><strong>${r.name}</strong>: ${r.comment}</p>`).join("");
-        document.getElementById(`review-${project.name}`).innerHTML = reviewHTML || "Belum ada review.";
-      });
-    });
+                <div class="form-group">
+                    <label>Review</label>
+                    <textarea id="user-comment" class="form-input" rows="3" placeholder="Tulis pengalaman Anda..." required></textarea>
+                </div>
 
-    async function submitReview() {
-      const project = document.getElementById("project").value;
-      const name = document.getElementById("name").value;
-      const rating = parseInt(document.getElementById("rating").value);
-      const comment = document.getElementById("comment").value;
-      if (!project || !name || !rating || !comment) return alert("Isi semua field dulu ya!");
+                <div class="btn-group">
+                    <button type="button" class="btn btn-outline" onclick="closeModal()">Batal</button>
+                    <button type="submit" class="btn btn-primary">Kirim</button>
+                </div>
+            </form>
+        </div>
+    </div>
 
-      await addDoc(reviewsRef, {
-        project,
-        name,
-        rating,
-        comment,
-        timestamp: new Date()
-      });
+    <script type="module">
+        // 1. FIREBASE INIT
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
+        import { getFirestore, collection, addDoc, query, onSnapshot, orderBy, serverTimestamp, limit } 
+        from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
 
-      document.getElementById("project").value = "";
-      document.getElementById("name").value = "";
-      document.getElementById("rating").value = "";
-      document.getElementById("comment").value = "";
-    }
-  </script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyBLC8YVaXY429dwo-H7rp0l5gbTsIdTAJY",
+            authDomain: "rifqyrating.firebaseapp.com",
+            databaseURL: "https://rifqyrating-default-rtdb.asia-southeast1.firebasedatabase.app",
+            projectId: "rifqyrating",
+            storageBucket: "rifqyrating.firebasestorage.app",
+            messagingSenderId: "859762516074",
+            appId: "1:859762516074:web:26f3b175bee02ff54a2a13"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        // 2. DATA PROJECTS (Pure Text)
+        const rawData = [
+            { key: "archive", title: "ArchiveMods", url: "https://rifqydev.my.id" },
+            { key: "maps", title: "RifqyMaps", url: "https://maps.rifqydev.my.id" },
+            { key: "task", title: "RifqyTask", url: "https://task.rifqydev.my.id" },
+            { key: "notes", title: "RifqyNotes", url: "https://notes.rifqydev.my.id" },
+            { key: "study", title: "RifqyStudy", url: "https://study.rifqydev.my.id" },
+            { key: "converter", title: "RifqyConverter", url: "https://converter.rifqydev.my.id" },
+            { key: "compress", title: "RifqyCompress", url: "https://compress.rifqydev.my.id" },
+            { key: "calory", title: "RifqyCalory", url: "https://calory.rifqydev.my.id" },
+            { key: "weather", title: "RifqyWeather", url: "https://weather.rifqydev.my.id" },
+            { key: "translate", title: "RifqyTranslate", url: "https://translate.rifqydev.my.id" },
+            { key: "qr", title: "RifqyQR", url: "https://qr.rifqydev.my.id" },
+            { key: "budget", title: "RifqyBudget", url: "https://budget.rifqydev.my.id" },
+            { key: "paste", title: "RifqyPaste", url: "https://paste.rifqydev.my.id" }
+        ];
+
+        const dict = {
+            id: {
+                archiveDesc: "Portal arsip modifikasi, eksperimen, dan tools digital dari RifqyDev.",
+                mapsDesc: "Jelajahi lokasi, cari tempat menarik, dan integrasi peta untuk semua kebutuhanmu.",
+                taskDesc: "Kelola dan pantau tugasmu dengan tampilan modern dan progress tracker.",
+                notesDesc: "Catat ide, belajar, atau to-do dengan markdown preview dan kategori.",
+                studyDesc: "Belajar interaktif dengan quiz, flashcard, dan latihan soal yang bisa kamu sesuaikan.",
+                converterDesc: "Konversi satuan, mata uang, dan data dengan cepat dan akurat.",
+                compressDesc: "Kompres gambar dan file langsung dari browser tanpa install apapun.",
+                caloryDesc: "Hitung kalori makanan dan pantau asupan harianmu dengan mudah.",
+                weatherDesc: "Lihat cuaca harian dan prakiraan lokal dengan tampilan minimalis.",
+                translateDesc: "Terjemahkan teks antar bahasa dengan cepat dan dukungan multi-bahasa.",
+                qrDesc: "Buat dan scan QR code untuk link, teks, dan data lainnya secara instan.",
+                budgetDesc: "Kelola keuangan pribadi, pantau pengeluaran, dan rencanakan anggaran dengan mudah.",
+                pasteDesc: "Berbagi teks, catatan, atau kode dengan cepat melalui pastebin pribadi RifqyDev.",
+                btnOpen: "Buka Proyek",
+                btnRate: "Beri Rating",
+                historyTitle: "Aktivitas Terbaru"
+            },
+            en: {
+                archiveDesc: "Archive portal for mods, experiments, and digital tools from RifqyDev.",
+                mapsDesc: "Explore locations, find interesting places, and map integration for all your needs.",
+                taskDesc: "Manage and track your tasks with a modern view and progress tracker.",
+                notesDesc: "Write ideas, study notes, or to-do lists with markdown preview and categories.",
+                studyDesc: "Interactive learning with quizzes, flashcards, and customizable practice exercises.",
+                converterDesc: "Convert units, currencies, and data quickly and accurately.",
+                compressDesc: "Compress images and files directly from your browser without installing anything.",
+                caloryDesc: "Calculate food calories and track your daily intake easily.",
+                weatherDesc: "View daily weather and local forecasts with a minimalist design.",
+                translateDesc: "Translate text between languages quickly with multi-language support.",
+                qrDesc: "Generate and scan QR codes instantly for links, text, and other data.",
+                budgetDesc: "Manage personal finances, track expenses, and plan budgets easily.",
+                pasteDesc: "Share text, notes, or code quickly via RifqyDev's personal pastebin.",
+                btnOpen: "Open Project",
+                btnRate: "Rate This",
+                historyTitle: "Recent Activity"
+            }
+        };
+
+        // 3. STATE
+        let currentLang = 'id';
+        let allReviews = [];
+
+        // 4. MAIN LOGIC
+        window.changeLang = (lang) => {
+            currentLang = lang;
+            document.getElementById('btn-id').className = lang === 'id' ? 'active' : '';
+            document.getElementById('btn-en').className = lang === 'en' ? 'active' : '';
+            
+            // Update static texts
+            document.getElementById('history-title').innerText = dict[currentLang].historyTitle;
+            
+            renderProjects();
+        }
+
+        function renderProjects() {
+            const container = document.getElementById('project-list');
+            container.innerHTML = '';
+
+            rawData.forEach(item => {
+                const descKey = item.key + 'Desc';
+                const description = dict[currentLang][descKey];
+                
+                const reviews = allReviews.filter(r => r.projectId === item.key);
+                const count = reviews.length;
+                let avg = 0;
+                if(count > 0) {
+                    const sum = reviews.reduce((a, b) => a + b.rating, 0);
+                    avg = (sum / count).toFixed(1);
+                }
+
+                let starText = "★".repeat(Math.round(avg));
+                let emptyStar = "☆".repeat(5 - Math.round(avg));
+                
+                const div = document.createElement('div');
+                div.className = 'card';
+                div.innerHTML = `
+                    <h2>${item.title}</h2>
+                    <p>${description}</p>
+                    <div class="card-footer">
+                        <div class="rating-display">
+                            ${avg > 0 ? `${avg} ${starText}${emptyStar}` : 'Belum ada rating'}
+                            <span class="rating-count">(${count})</span>
+                        </div>
+                        <div class="btn-group">
+                            <a href="${item.url}" target="_blank" class="btn btn-primary">${dict[currentLang].btnOpen}</a>
+                            <button onclick="openModal('${item.key}', '${item.title}')" class="btn btn-outline">${dict[currentLang].btnRate}</button>
+                        </div>
+                    </div>
+                `;
+                container.appendChild(div);
+            });
+        }
+
+        function renderHistory() {
+            const container = document.getElementById('feed-list');
+            container.innerHTML = '';
+
+            // Get top 20 latest reviews from local array (which is already sorted from Firebase)
+            const history = allReviews.slice(0, 20);
+
+            if (history.length === 0) {
+                container.innerHTML = '<div style="font-size:0.8rem; color:#555; text-align:center; padding:10px;">Belum ada aktivitas.</div>';
+                return;
+            }
+
+            history.forEach(r => {
+                // Find Project Title
+                const projectObj = rawData.find(p => p.key === r.projectId);
+                const projectTitle = projectObj ? projectObj.title : r.projectId;
+                
+                // Stars
+                const stars = "★".repeat(r.rating);
+                
+                // Time (Simple logic)
+                let timeStr = "";
+                if (r.timestamp) {
+                    const date = r.timestamp.toDate(); // Firebase timestamp to JS Date
+                    const now = new Date();
+                    const diffMins = Math.floor((now - date) / 60000);
+                    
+                    if (diffMins < 1) timeStr = "Baru saja";
+                    else if (diffMins < 60) timeStr = `${diffMins} menit lalu`;
+                    else {
+                        timeStr = date.toLocaleDateString() + ' ' + date.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+                    }
+                }
+
+                const item = document.createElement('div');
+                item.className = 'feed-item';
+                item.innerHTML = `
+                    <div>
+                        <span class="feed-user">${r.name}</span>
+                        <span class="feed-action">menilai</span>
+                        <span class="feed-project">${projectTitle}</span>
+                    </div>
+                    <span class="feed-stars">${stars}</span>
+                    <span class="feed-comment">"${r.comment}"</span>
+                    <span class="feed-time">${timeStr}</span>
+                `;
+                container.appendChild(item);
+            });
+        }
+
+        // 5. FIREBASE LISTENER (Realtime)
+        // Fetch global reviews sorted by time
+        const q = query(collection(db, "reviews"), orderBy("timestamp", "desc"), limit(50));
+        
+        onSnapshot(q, (snapshot) => {
+            allReviews = [];
+            snapshot.forEach((doc) => {
+                allReviews.push({ id: doc.id, ...doc.data() });
+            });
+            renderProjects();
+            renderHistory(); // Update the sidebar
+        });
+
+        // 6. FORM LOGIC
+        window.openModal = (key, title) => {
+            document.getElementById('project-id').value = key;
+            document.getElementById('modal-title').innerText = title;
+            document.getElementById('rating-value').value = '';
+            document.getElementById('user-name').value = '';
+            document.getElementById('user-comment').value = '';
+            
+            // Reset stars
+            document.querySelectorAll('.rating-opt').forEach(el => el.classList.remove('selected'));
+            document.getElementById('review-modal').style.display = 'flex';
+        }
+
+        window.closeModal = () => {
+            document.getElementById('review-modal').style.display = 'none';
+        }
+
+        window.selectStar = (val) => {
+            document.getElementById('rating-value').value = val;
+            const opts = document.querySelectorAll('.rating-opt');
+            opts.forEach((opt, idx) => {
+                if (idx < val) opt.classList.add('selected');
+                else opt.classList.remove('selected');
+            });
+        }
+
+        document.getElementById('rating-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const rating = document.getElementById('rating-value').value;
+            const name = document.getElementById('user-name').value;
+            const comment = document.getElementById('user-comment').value;
+            const pid = document.getElementById('project-id').value;
+
+            if(!rating) {
+                alert("Mohon pilih rating (1-5)");
+                return;
+            }
+
+            // Save text only to Firestore
+            try {
+                await addDoc(collection(db, "reviews"), {
+                    projectId: pid,
+                    name: name,
+                    comment: comment,
+                    rating: parseInt(rating),
+                    timestamp: serverTimestamp()
+                });
+                closeModal();
+            } catch(err) {
+                console.error(err);
+                alert("Gagal menyimpan.");
+            }
+        });
+
+        // Expose functions
+        window.changeLang = changeLang;
+        window.openModal = openModal;
+        window.closeModal = closeModal;
+        window.selectStar = selectStar;
+        
+        // Initial Title
+        document.getElementById('history-title').innerText = dict['id'].historyTitle;
+
+    </script>
 </body>
 </html>
+
+
