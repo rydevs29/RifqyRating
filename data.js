@@ -1,122 +1,73 @@
-// data.js — FINAL & 100% BERHASIL KIRIM + TAMPILKAN REVIEW
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js";
-import { getDatabase, ref, onValue, runTransaction } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-database.js";
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - RifqyMetrics</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #fcfcfc; }
+        .hidden { display: none !important; }
+    </style>
+</head>
+<body class="text-slate-900">
 
-const app = initializeApp({
-  apiKey: "AIzaSyBLC8YVaXY429dwo-H7rp0l5gbTsIdTAJY",
-  databaseURL: "https://rifqyrating-default-rtdb.asia-southeast1.firebasedatabase.app"
-});
-const db = getDatabase(app);
+    <div id="login-screen" class="min-h-screen flex items-center justify-center p-6">
+        <div class="bg-white border border-slate-100 shadow-2xl rounded-3xl p-8 max-w-sm w-full text-center">
+            <h1 class="text-2xl font-bold text-blue-600 mb-2">RifqyMetrics Admin</h1>
+            <p class="text-slate-500 text-sm mb-8">Silakan login dengan akun Google kamu untuk mengelola repository.</p>
+            <button id="btn-login" class="flex items-center justify-center gap-3 w-full py-3 px-4 bg-white border border-slate-200 rounded-xl font-semibold hover:bg-slate-50 transition shadow-sm">
+                <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" class="w-5 h-5" alt="Google">
+                Login with Google
+            </button>
+        </div>
+    </div>
 
-export const projects = [
-  {name:"ArchiveMods", desc:"Portal arsip modifikasi, eksperimen, dan tools digital dari RifqyDev.", link:"https://rifqydev.my.id"},
-  {name:"RifqyMaps", desc:"Jelajahi lokasi dan cari tempat menarik dengan peta interaktif.", link:"https://maps.rifqydev.my.id"},
-  {name:"RifqyTask", desc:"Kelola tugas harian dengan tampilan modern dan simpel.", link:"https://task.rifqydev.my.id"},
-  {name:"RifqyNotes", desc:"Catat ide & to-do dengan dukungan markdown.", link:"https://notes.rifqydev.my.id"},
-  {name:"RifqyStudy", desc:"Belajar interaktif pakai quiz dan flashcard.", link:"https://study.rifqydev.my.id"},
-  {name:"RifqyConverter", desc:"Konversi satuan, mata uang, dan data cepat.", link:"https://converter.rifqydev.my.id"},
-  {name:"RifqyCompress", desc:"Kompres gambar & file langsung di browser.", link:"https://compress.rifqydev.my.id"},
-  {name:"RifqyCalory", desc:"Hitung kalori makanan dan pantau asupan harian.", link:"https://calory.rifqydev.my.id"},
-  {name:"RifqyWeather", desc:"Cek cuaca real-time dan prakiraan.", link:"https://weather.rifqydev.my.id"},
-  {name:"RifqyTranslate", desc:"Terjemah teks antar bahasa dengan cepat.", link:"https://translate.rifqydev.my.id"},
-  {name:"RifqyQR", desc:"Buat & scan QR code instan.", link:"https://qr.rifqydev.my.id"},
-  {name:"RifqyBudget", desc:"Kelola keuangan pribadi dengan mudah.", link:"https://budget.rifqydev.my.id"},
-  {name:"RifqyPaste", desc:"Bagikan teks atau kode dengan cepat.", link:"https://paste.rifqydev.my.id"}
-];
+    <div id="admin-dashboard" class="hidden">
+        <nav class="sticky top-0 z-50 bg-white/80 backdrop-blur-md border-b border-slate-100">
+            <div class="max-w-6xl mx-auto px-6 py-4 flex justify-between items-center">
+                <h1 class="text-xl font-bold text-blue-600">Admin Panel</h1>
+                <div class="flex items-center gap-4">
+                    <span id="user-email" class="text-xs font-medium text-slate-400 hidden md:block"></span>
+                    <button id="btn-logout" class="text-xs font-bold text-red-500 hover:text-red-700">Logout</button>
+                </div>
+            </div>
+        </nav>
 
-// renderProjects() tetap sama seperti versi sebelumnya (yang sudah bagus)
+        <main class="max-w-4xl mx-auto px-6 py-12">
+            <section class="bg-white border border-slate-100 rounded-3xl p-8 shadow-sm mb-12">
+                <h2 id="form-title" class="text-2xl font-bold mb-6">Tambah Proyek Baru</h2>
+                <form id="project-form" class="space-y-5">
+                    <input type="hidden" id="project-id">
+                    <div>
+                        <label class="block text-sm font-semibold text-slate-700 mb-2">Nama Repository</label>
+                        <input type="text" id="proj-name" required class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none transition" placeholder="Contoh: RifqyNexus">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-semibold text-slate-700 mb-2">Link Tautan</label>
+                        <input type="url" id="proj-link" required class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none transition" placeholder="https://github.com/RifqyDev/...">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-semibold text-slate-700 mb-2">Deskripsi Singkat</label>
+                        <textarea id="proj-desc" required rows="3" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none transition" placeholder="Jelaskan tentang proyek ini..."></textarea>
+                    </div>
+                    <div class="flex gap-4 pt-4">
+                        <button type="submit" id="btn-submit" class="flex-1 py-3 bg-blue-600 text-white font-bold rounded-xl hover:bg-blue-700 shadow-lg shadow-blue-100 transition">Simpan Proyek</button>
+                        <button type="button" id="btn-cancel" class="hidden flex-1 py-3 bg-slate-100 text-slate-600 font-bold rounded-xl hover:bg-slate-200 transition">Batal</button>
+                    </div>
+                </form>
+            </section>
 
-// handleRatingPage() — VERSI YANG SUDAH 100% BERHASIL
-export function handleRatingPage() {
-  const params = new URLSearchParams(location.search);
-  const name = decodeURIComponent(params.get('n') || '');
-  if (!name || !projects.find(p => p.name === name)) {
-    document.body.innerHTML = "<h1 style='text-align:center;color:#fff;margin-top:100px'>Proyek tidak ditemukan!</h1>";
-    return;
-  }
+            <section>
+                <h2 class="text-xl font-bold mb-6">Daftar Repository Aktif</h2>
+                <div id="admin-project-list" class="grid grid-cols-1 gap-4">
+                    <p class="text-slate-400 italic">Memuat data...</p>
+                </div>
+            </section>
+        </main>
+    </div>
 
-  const project = projects.find(p => p.name === name);
-  document.getElementById('title').textContent = name;
-  document.getElementById('desc').textContent = project.desc;
-
-  const ratingRef = ref(db, 'ratings/' + name);
-
-  // Update rata-rata
-  onValue(ratingRef, s => {
-    const d = s.val() || {sum:0,count:0};
-    const avg = d.count > 0 ? (d.sum / d.count).toFixed(1) : "0.0";
-    const txt = d.count === 0 ? "Belum ada ulasan" : (d.count === 1 ? "1 ulasan" : `${d.count} ulasan`);
-    document.getElementById('avg').textContent = `\( {avg} / 5 ( \){txt})`;
-  });
-
-  // Tampilkan semua review
-  const reviewsRef = ref(db, 'ratings/' + name + '/reviews');
-  const reviewsDiv = document.getElementById('reviews');
-  onValue(reviewsRef, s => {
-    reviewsDiv.innerHTML = '';
-    if (!s.val()) {
-      reviewsDiv.innerHTML = '<p style="text-align:center;opacity:0.7">Belum ada review</p>';
-      return;
-    }
-    Object.entries(s.val())
-      .sort((a, b) => b[1].date - a[1].date)
-      .slice(0, 50)
-      .forEach(([key, r]) => {
-        const stars = '★★★★★'.substring(0, r.stars) + '☆☆☆☆☆'.substring(r.stars);
-        const n = r.name?.trim() || "Anonim";
-        const date = new Date(r.date).toLocaleDateString('id-ID', {day:'numeric', month:'long', year:'numeric'});
-        const div = document.createElement('div');
-        div.className = 'review';
-        div.innerHTML = `
-          <div class="r-stars">${stars}</div>
-          <div class="r-name">— ${n}</div>
-          <p>${r.text.replace(/</g, '&lt;')}</p>
-          <small>${date}</small>
-        `;
-        reviewsDiv.appendChild(div);
-      });
-  });
-
-  // Setup bintang
-  const starsContainer = document.getElementById('stars');
-  starsContainer.innerHTML = '';
-  for (let i = 1; i <= 5; i++) {
-    const star = document.createElement('span');
-    star.className = 'star';
-    star.textContent = '★';
-    star.onclick = () => {
-      starsContainer.querySelectorAll('.star').forEach((s, j) => s.classList.toggle('active', j < i));
-    };
-    starsContainer.appendChild(star);
-  }
-
-  // Kirim rating — SEKARANG 100% BERHASIL!
-  document.getElementById('submit').onclick = () => {
-    const selected = document.querySelectorAll('#stars .star.active').length;
-    const text = document.getElementById('review').value.trim();
-    const nama = document.getElementById('name').value.trim() || "Anonim";
-
-    if (selected === 0) return alert("Pilih bintang dulu!");
-    if (text.length < 10) return alert("Review minimal 10 karakter!");
-
-    runTransaction(ratingRef, cur => {
-      cur = cur || {sum: 0, count: 0, reviews: {}};
-      cur.sum += selected;
-      cur.count += 1;
-      cur.reviews[Date.now()] = {
-        stars: selected,
-        text: text,
-        name: nama,
-        date: Date.now()
-      };
-      return cur;
-    }).then(() => {
-      alert("Rating & review kamu berhasil dikirim! Terima kasih ❤️");
-      document.getElementById('review').value = '';
-      document.getElementById('name').value = '';
-      starsContainer.querySelectorAll('.star').forEach(s => s.classList.remove('active'));
-    }).catch(err => {
-      alert("Gagal mengirim: " + err.message);
-    });
-  };
-}
+    <script type="module" src="admin.js"></script>
+</body>
+</html>
