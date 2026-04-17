@@ -3,69 +3,92 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Dashboard - RifqyMetrics</title>
+    <title>Admin Panel - RifqyMetrics</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
-    <style>
-        body { font-family: 'Inter', sans-serif; background-color: #fcfcfc; }
-        .hidden { display: none !important; }
-    </style>
+    <link rel="stylesheet" href="style.css">
 </head>
-<body class="text-slate-900">
+<body class="bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-slate-100 transition-colors duration-300">
 
     <div id="login-screen" class="min-h-screen flex items-center justify-center p-6">
-        <div class="bg-white border border-slate-100 shadow-2xl rounded-3xl p-8 max-w-sm w-full text-center">
-            <h1 class="text-2xl font-bold text-blue-600 mb-2">RifqyMetrics Admin</h1>
-            <p class="text-slate-500 text-sm mb-8">Silakan login dengan akun Google kamu untuk mengelola repository.</p>
-            <button id="btn-login" class="flex items-center justify-center gap-3 w-full py-3 px-4 bg-white border border-slate-200 rounded-xl font-semibold hover:bg-slate-50 transition shadow-sm">
-                <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" class="w-5 h-5" alt="Google">
+        <div class="bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-700 shadow-2xl rounded-[2rem] p-10 max-w-sm w-full text-center">
+            <h1 class="text-3xl font-black text-blue-600 mb-2">RifqyMetrics</h1>
+            <p class="text-slate-500 text-sm mb-8">Hanya untuk Authorized Admin.</p>
+            <button id="btn-login" class="flex items-center justify-center gap-3 w-full py-4 px-4 bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-2xl font-bold hover:bg-slate-50 dark:hover:bg-slate-600 transition shadow-sm">
+                <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" class="w-5 h-5">
                 Login with Google
             </button>
         </div>
     </div>
 
     <div id="admin-dashboard" class="hidden">
-        <nav class="sticky top-0 z-50 bg-white/80 backdrop-blur-md border-b border-slate-100">
+        <nav class="sticky top-0 z-50 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border-b border-slate-100 dark:border-slate-800">
             <div class="max-w-6xl mx-auto px-6 py-4 flex justify-between items-center">
-                <h1 class="text-xl font-bold text-blue-600">Admin Panel</h1>
-                <div class="flex items-center gap-4">
-                    <span id="user-email" class="text-xs font-medium text-slate-400 hidden md:block"></span>
-                    <button id="btn-logout" class="text-xs font-bold text-red-500 hover:text-red-700">Logout</button>
-                </div>
+                <h1 class="text-xl font-bold text-blue-600">Admin Dashboard</h1>
+                <button id="btn-logout" class="text-xs font-bold text-red-500 bg-red-50 dark:bg-red-900/20 px-4 py-2 rounded-full">Logout</button>
             </div>
         </nav>
 
-        <main class="max-w-4xl mx-auto px-6 py-12">
-            <section class="bg-white border border-slate-100 rounded-3xl p-8 shadow-sm mb-12">
-                <h2 id="form-title" class="text-2xl font-bold mb-6">Tambah Proyek Baru</h2>
-                <form id="project-form" class="space-y-5">
-                    <input type="hidden" id="project-id">
-                    <div>
-                        <label class="block text-sm font-semibold text-slate-700 mb-2">Nama Repository</label>
-                        <input type="text" id="proj-name" required class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none transition" placeholder="Contoh: RifqyNexus">
-                    </div>
-                    <div>
-                        <label class="block text-sm font-semibold text-slate-700 mb-2">Link Tautan</label>
-                        <input type="url" id="proj-link" required class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none transition" placeholder="https://github.com/RifqyDev/...">
-                    </div>
-                    <div>
-                        <label class="block text-sm font-semibold text-slate-700 mb-2">Deskripsi Singkat</label>
-                        <textarea id="proj-desc" required rows="3" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none transition" placeholder="Jelaskan tentang proyek ini..."></textarea>
-                    </div>
-                    <div class="flex gap-4 pt-4">
-                        <button type="submit" id="btn-submit" class="flex-1 py-3 bg-blue-600 text-white font-bold rounded-xl hover:bg-blue-700 shadow-lg shadow-blue-100 transition">Simpan Proyek</button>
-                        <button type="button" id="btn-cancel" class="hidden flex-1 py-3 bg-slate-100 text-slate-600 font-bold rounded-xl hover:bg-slate-200 transition">Batal</button>
-                    </div>
-                </form>
-            </section>
-
-            <section>
-                <h2 class="text-xl font-bold mb-6">Daftar Repository Aktif</h2>
-                <div id="admin-project-list" class="grid grid-cols-1 gap-4">
-                    <p class="text-slate-400 italic">Memuat data...</p>
+        <main class="max-w-5xl mx-auto px-6 py-12">
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                
+                <div class="lg:col-span-1">
+                    <section class="bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-700 rounded-[2rem] p-8 shadow-sm sticky top-24">
+                        <h2 id="form-title" class="text-xl font-extrabold mb-6">Kelola Proyek</h2>
+                        <form id="project-form" class="space-y-4">
+                            <input type="hidden" id="project-id">
+                            <div>
+                                <label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-1">Nama Proyek</label>
+                                <input type="text" id="proj-name" required class="w-full px-4 py-3 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none transition dark:text-white">
+                            </div>
+                            <div>
+                                <label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-1">Status (Command)</label>
+                                <input type="text" id="proj-status" placeholder="Stable, Beta, Hot, dll" class="w-full px-4 py-3 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none transition dark:text-white">
+                            </div>
+                            <div>
+                                <label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-1">Link URL</label>
+                                <input type="url" id="proj-link" required class="w-full px-4 py-3 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none transition dark:text-white">
+                            </div>
+                            <div>
+                                <label class="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-1">Deskripsi</label>
+                                <textarea id="proj-desc" required rows="3" class="w-full px-4 py-3 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none transition dark:text-white"></textarea>
+                            </div>
+                            <button type="submit" id="btn-submit" class="w-full py-4 bg-blue-600 text-white font-bold rounded-xl hover:bg-blue-700 shadow-lg shadow-blue-100 dark:shadow-none transition mt-4">Simpan Proyek</button>
+                            <button type="button" id="btn-cancel" class="hidden w-full py-2 text-slate-400 font-bold text-xs uppercase tracking-widest">Batal Edit</button>
+                        </form>
+                    </section>
                 </div>
-            </section>
+
+                <div class="lg:col-span-2 space-y-8">
+                    <section>
+                        <h2 class="text-xl font-extrabold mb-6 flex items-center gap-2">
+                            Active Repositories <span id="count-proj" class="text-xs bg-blue-100 text-blue-600 px-2 py-1 rounded-md">0</span>
+                        </h2>
+                        <div id="admin-project-list" class="grid grid-cols-1 gap-4">
+                            </div>
+                    </section>
+
+                    <section class="mt-12">
+                        <h2 class="text-xl font-extrabold mb-6">Review Moderation & Replies</h2>
+                        <div id="admin-review-list" class="space-y-4">
+                            </div>
+                    </section>
+                </div>
+
+            </div>
         </main>
+    </div>
+
+    <div id="reply-modal" class="fixed inset-0 z-[70] hidden flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm">
+        <div class="bg-white dark:bg-slate-800 w-full max-w-md rounded-[2rem] p-8 border border-slate-100 dark:border-slate-700 shadow-2xl">
+            <h3 class="text-xl font-bold mb-4">Balas Ulasan</h3>
+            <p id="reply-target" class="text-xs text-slate-500 mb-6 italic font-medium"></p>
+            <textarea id="admin-reply-text" rows="4" class="w-full px-4 py-3 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl outline-none focus:ring-2 focus:ring-blue-500 mb-6" placeholder="Ketik balasan terverifikasi kamu..."></textarea>
+            <div class="flex gap-3">
+                <button onclick="closeReplyModal()" class="flex-1 py-3 text-slate-400 font-bold">Batal</button>
+                <button id="btn-send-reply" class="flex-1 py-3 bg-blue-600 text-white font-bold rounded-xl shadow-lg shadow-blue-100">Kirim Balasan</button>
+            </div>
+        </div>
     </div>
 
     <script type="module" src="admin.js"></script>
