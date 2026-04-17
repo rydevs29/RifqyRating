@@ -6,6 +6,7 @@ import { getAuth, GoogleAuthProvider } from "https://www.gstatic.com/firebasejs/
 const firebaseConfig = {
   apiKey: "AIzaSyA1WHFjidCIEotEG4nOOUCV1OHU-cslddU",
   authDomain: "rifqymetrics.firebaseapp.com",
+  databaseURL: "https://rifqymetrics-default-rtdb.asia-southeast1.firebasedatabase.app",
   projectId: "rifqymetrics",
   storageBucket: "rifqymetrics.firebasestorage.app",
   messagingSenderId: "459868583825",
@@ -17,7 +18,7 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const analytics = getAnalytics(app);
 
-// Export layanan agar bisa dipakai di index.js dan admin.js
+// Export layanan agar bisa dipakai di script.js dan admin.js
 export const db = getDatabase(app);
 export const auth = getAuth(app);
 export const googleProvider = new GoogleAuthProvider();
